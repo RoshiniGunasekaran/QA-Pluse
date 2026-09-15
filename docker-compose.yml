@@ -1,0 +1,30 @@
+
+services:
+  db:
+    image: postgres:15
+    container_name: qa_pulse_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: qa_pulse
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: devpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - qa-pulse-network
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dev -d qa_pulse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  qa-pulse-network:
+
+volumes:
+  postgres_data:
