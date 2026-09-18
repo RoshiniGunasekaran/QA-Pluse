@@ -1,6 +1,10 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+
+// Import routes
+import testRunsRouter from "./routes/testRuns";
+import testResultsRouter from "./routes/testResults";
 import healthRouter from "./routes/health";
 
 // Load environment variables
@@ -21,13 +25,29 @@ app.use(
   })
 );
 
-// Routes
-app.use("/", healthRouter);
+// ✅ Register routes
+app.use("/api/test-runs", testRunsRouter);
+app.use("/api/test-results", testResultsRouter);
+app.use("/health", healthRouter);
 
-// Error handling middleware
+// ✅ 404 handler
+app.use((req: Request, res: Response) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
+    timestamp: new Date(),
+  });
+});
+
+// ✅ Global error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction): void => {
   console.error("Unhandled error:", err.message);
-  res.status(500).json({ error: "Internal Server Error" });
+  res.status(500).json({
+    success: false,
+    message: "Internal Server Error",
+    errors: [err.message],
+    timestamp: new Date(),
+  });
 });
 
 // Start server

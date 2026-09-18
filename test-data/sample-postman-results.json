@@ -1,0 +1,71 @@
+{
+  "collection": {
+    "info": {
+      "name": "QA Pulse API Tests",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Authentication",
+        "item": [
+          { "name": "POST /auth/login - Valid credentials" },
+          { "name": "POST /auth/login - Invalid password" },
+          { "name": "GET /auth/user - Valid token" },
+          { "name": "POST /auth/refresh - Token refresh" },
+          { "name": "POST /auth/logout - Valid token" },
+          { "name": "POST /auth/register - New user" },
+          { "name": "GET /auth/verify - Invalid token" },
+          { "name": "POST /auth/2fa - MFA setup" }
+        ]
+      },
+      {
+        "name": "Payment API",
+        "item": [
+          { "name": "POST /payments/create - Valid payment" },
+          { "name": "POST /payments/create - Invalid card" },
+          { "name": "GET /payments/list - Get user payments" },
+          { "name": "POST /payments/refund - Process refund" },
+          { "name": "GET /payments/status - Check status" },
+          { "name": "POST /payments/validate - Card validation" },
+          { "name": "POST /payments/webhook - Webhook test" }
+        ]
+      },
+      {
+        "name": "Cart Service",
+        "item": [
+          { "name": "POST /cart/add - Add item" },
+          { "name": "GET /cart - Get cart items" },
+          { "name": "PUT /cart/update - Update quantity" },
+          { "name": "POST /cart/apply-coupon - Apply coupon" },
+          { "name": "POST /cart/checkout - Checkout" }
+        ]
+      }
+    ]
+  },
+  "run": {
+    "executions": [
+      { "item": { "name": "POST /auth/login - Valid credentials" }, "assertions": [{ "assertion": "Status 200", "passed": true }], "times": { "responseTime": 250 } },
+      { "item": { "name": "POST /auth/login - Invalid password" }, "assertions": [{ "assertion": "Status 401", "passed": false, "error": "Expected 401 but got 200" }], "times": { "responseTime": 180 } },
+      { "item": { "name": "GET /auth/user - Valid token" }, "assertions": [{ "assertion": "Status 200", "passed": true }], "times": { "responseTime": 150 } },
+      { "item": { "name": "POST /auth/refresh - Token refresh" }, "assertions": [{ "assertion": "Status 200", "passed": true }], "times": { "responseTime": 200 } },
+      { "item": { "name": "POST /auth/logout - Valid token" }, "assertions": [{ "assertion": "Status 200", "passed": true }], "times": { "responseTime": 100 } },
+      { "item": { "name": "POST /auth/register - New user" }, "assertions": [{ "assertion": "Status 201", "passed": true }], "times": { "responseTime": 350 } },
+      { "item": { "name": "GET /auth/verify - Invalid token" }, "assertions": [{ "assertion": "Status 401", "passed": false, "error": "Expected 401 but got 200" }], "times": { "responseTime": 120 } },
+      { "item": { "name": "POST /auth/2fa - MFA setup" }, "assertions": [{ "assertion": "Status 200", "passed": true }], "times": { "responseTime": 400 } },
+
+      { "item": { "name": "POST /payments/create - Valid payment" }, "assertions": [{ "assertion": "Status 200", "passed": true }], "times": { "responseTime": 500 } },
+      { "item": { "name": "POST /payments/create - Invalid card" }, "assertions": [{ "assertion": "Status 400", "passed": false, "error": "Expected 400 but got 200" }], "times": { "responseTime": 200 } },
+      { "item": { "name": "GET /payments/list - Get user payments" }, "assertions": [{ "assertion": "Status 200", "passed": true }], "times": { "responseTime": 300 } },
+      { "item": { "name": "POST /payments/refund - Process refund" }, "assertions": [{ "assertion": "Status 200", "passed": true }], "times": { "responseTime": 600 } },
+      { "item": { "name": "GET /payments/status - Check status" }, "assertions": [{ "assertion": "Status 200", "passed": true }], "times": { "responseTime": 150 } },
+      { "item": { "name": "POST /payments/validate - Card validation" }, "assertions": [], "skipped": true, "times": { "responseTime": 0 } },
+      { "item": { "name": "POST /payments/webhook - Webhook test" }, "assertions": [{ "assertion": "Status 200", "passed": true }], "times": { "responseTime": 100 } },
+
+      { "item": { "name": "POST /cart/add - Add item" }, "assertions": [{ "assertion": "Status 200", "passed": true }], "times": { "responseTime": 200 } },
+      { "item": { "name": "GET /cart - Get cart items" }, "assertions": [{ "assertion": "Status 200", "passed": true }], "times": { "responseTime": 150 } },
+      { "item": { "name": "PUT /cart/update - Update quantity" }, "assertions": [{ "assertion": "Status 200", "passed": true }], "times": { "responseTime": 180 } },
+      { "item": { "name": "POST /cart/apply-coupon - Apply coupon" }, "assertions": [], "skipped": true, "times": { "responseTime": 0 } },
+      { "item": { "name": "POST /cart/checkout - Checkout" }, "assertions": [{ "assertion": "Status 200", "passed": true }], "times": { "responseTime": 800 } }
+    ]
+  }
+}

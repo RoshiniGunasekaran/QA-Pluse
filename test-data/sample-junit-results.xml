@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <!-- AuthenticationTests suite -->
+  <testsuite name="AuthenticationTests" tests="8" failures="2" skipped="0" time="12.3">
+    <testcase name="testValidLoginSuccess" classname="com.example.AuthenticationTests" time="1.5"/>
+    <testcase name="testInvalidPassword" classname="com.example.AuthenticationTests" time="0.8">
+      <failure message="Invalid password rejected">Expected status 401 but got 200</failure>
+    </testcase>
+    <testcase name="testEmptyUsername" classname="com.example.AuthenticationTests" time="0.5">
+      <failure message="Empty username not handled">NullPointerException at AuthService</failure>
+    </testcase>
+    <testcase name="testSessionTimeout" classname="com.example.AuthenticationTests" time="2.0"/>
+    <testcase name="testTokenRefresh" classname="com.example.AuthenticationTests" time="1.2"/>
+    <testcase name="testOAuthIntegration" classname="com.example.AuthenticationTests" time="2.5"/>
+    <testcase name="testMultiFactorAuth" classname="com.example.AuthenticationTests" time="3.0"/>
+    <testcase name="testPasswordReset" classname="com.example.AuthenticationTests" time="1.8"/>
+  </testsuite>
+
+  <!-- PaymentServiceTests suite -->
+  <testsuite name="PaymentServiceTests" tests="7" failures="1" skipped="1" time="8.1">
+    <testcase name="testValidPayment" classname="com.example.PaymentServiceTests" time="2.0"/>
+    <testcase name="testInvalidCardNumber" classname="com.example.PaymentServiceTests" time="0.6">
+      <failure message="Card number validation failed">Expected error but payment processed</failure>
+    </testcase>
+    <testcase name="testAmountValidation" classname="com.example.PaymentServiceTests" time="0.8"/>
+    <testcase name="testCurrencyConversion" classname="com.example.PaymentServiceTests" time="1.2"/>
+    <testcase name="testPaymentTimeout" classname="com.example.PaymentServiceTests" time="0">
+      <skipped message="Timeout simulation not supported"/>
+    </testcase>
+    <testcase name="testRefundProcess" classname="com.example.PaymentServiceTests" time="2.5"/>
+    <testcase name="testPaymentGatewayConnection" classname="com.example.PaymentServiceTests" time="1.0"/>
+  </testsuite>
+
+  <!-- CartServiceTests suite -->
+  <testsuite name="CartServiceTests" tests="5" failures="0" skipped="1" time="1.8">
+    <testcase name="testAddItem" classname="com.example.CartServiceTests" time="0.4"/>
+    <testcase name="testRemoveItem" classname="com.example.CartServiceTests" time="0.5"/>
+    <testcase name="testUpdateQuantity" classname="com.example.CartServiceTests" time="0.6"/>
+    <testcase name="testApplyCoupon" classname="com.example.CartServiceTests" time="0">
+      <skipped message="Coupon feature disabled in test env"/>
+    </testcase>
+    <testcase name="testCartSummary" classname="com.example.CartServiceTests" time="0.3"/>
+  </testsuite>
+</testsuites>
