@@ -1,51 +1,31 @@
-import React, { useState, useEffect } from "react";
+// frontend/src/App.tsx
+import React, { useEffect, useState } from "react";
+import Dashboard from "./pages/Dashboard";
 import "./App.css";
 
 const App: React.FC = () => {
-  const [backendConnected, setBackendConnected] = useState<boolean>(false);
-  const [loadingStatus, setLoadingStatus] = useState<boolean>(true);
+  const [projectId, setProjectId] = useState<number>(3);
 
   useEffect(() => {
+    // Optional: verify backend health
     const checkBackend = async () => {
       try {
         const response = await fetch("http://localhost:5000/health");
-        if (response.ok) {
-          setBackendConnected(true);
-        } else {
-          setBackendConnected(false);
+        if (!response.ok) {
+          console.warn("Backend health check failed");
         }
       } catch (error) {
-        setBackendConnected(false);
-      } finally {
-        setLoadingStatus(false);
+        console.error("Backend not reachable:", error);
       }
     };
 
     checkBackend();
+    setProjectId(3); // default project for now
   }, []);
 
   return (
-    <div className="app-container">
-      <h1>QA Pulse</h1>
-      <h2>Quality Intelligence Platform</h2>
-
-      <div className="status-section">
-        <p>
-          <strong>Backend Status:</strong>{" "}
-          {loadingStatus ? (
-            <span className="loading">Checking...</span>
-          ) : backendConnected ? (
-            <span className="status-dot connected"></span>
-          ) : (
-            <span className="status-dot disconnected"></span>
-          )}
-        </p>
-
-        <p>
-          <strong>Database Status:</strong>{" "}
-          <span className="status-dot connected"></span> Connected
-        </p>
-      </div>
+    <div className="app">
+      <Dashboard projectId={projectId} />
     </div>
   );
 };

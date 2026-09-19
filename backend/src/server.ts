@@ -6,6 +6,7 @@ import cors from "cors";
 import testRunsRouter from "./routes/testRuns";
 import testResultsRouter from "./routes/testResults";
 import healthRouter from "./routes/health";
+import dashboardRouter from "./routes/dashboard"; // ✅ NEW import
 
 // Load environment variables
 dotenv.config();
@@ -29,6 +30,7 @@ app.use(
 app.use("/api/test-runs", testRunsRouter);
 app.use("/api/test-results", testResultsRouter);
 app.use("/health", healthRouter);
+app.use("/api/dashboard", dashboardRouter); // ✅ NEW route registration
 
 // ✅ 404 handler
 app.use((req: Request, res: Response) => {
