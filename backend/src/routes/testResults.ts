@@ -2,17 +2,21 @@ import express, { Request, Response } from "express";
 import { Pool } from "pg";
 import { TestStatus } from "../types/testResults";
 
+import {
+  sendSlackMessage,
+  formatTestFailureMessage,
+} from "../services/slackService";
+
 const router = express.Router();
 
 // Database connection pool
 const pool = new Pool({
-  user: 'dev',
-  password: 'devpass',
-  host: 'localhost',
+  user: "dev",
+  password: "devpass",
+  host: "localhost",
   port: 5432,
-  database: 'qa_pulse',
+  database: "qa_pulse",
 });
-
 
 /**
  * Validate a single test result.
@@ -20,34 +24,73 @@ const pool = new Pool({
  * @param index Index in array
  * @returns Array of error messages
  */
-function validateSingleResult(result: any, index: number): string[] {
+function validateSingleResult(
+  result: any,
+  index: number
+): string[] {
   const errors: string[] = [];
 
-  if (!result.test_name || typeof result.test_name !== "string" || !result.test_name.trim()) {
-    errors.push(`Test result ${index}: test_name is required and cannot be empty`);
+  if (
+    !result.test_name ||
+    typeof result.test_name !== "string" ||
+    !result.test_name.trim()
+  ) {
+    errors.push(
+      `Test result ${index}: test_name is required and cannot be empty`
+    );
   }
 
-  if (!result.status || typeof result.status !== "string") {
-    errors.push(`Test result ${index}: status must be PASS, FAIL, or SKIPPED`);
+  if (
+    !result.status ||
+    typeof result.status !== "string"
+  ) {
+    errors.push(
+      `Test result ${index}: status must be PASS, FAIL, or SKIPPED`
+    );
   } else {
     const status = result.status.toUpperCase();
-    if (![TestStatus.PASS, TestStatus.FAIL, TestStatus.SKIPPED].includes(status as TestStatus)) {
-      errors.push(`Test result ${index}: status must be PASS, FAIL, or SKIPPED`);
+
+    if (
+      ![
+        TestStatus.PASS,
+        TestStatus.FAIL,
+        TestStatus.SKIPPED,
+      ].includes(status as TestStatus)
+    ) {
+      errors.push(
+        `Test result ${index}: status must be PASS, FAIL, or SKIPPED`
+      );
     }
   }
 
   if (typeof result.duration !== "number") {
-    errors.push(`Test result ${index}: duration must be a number`);
+    errors.push(
+      `Test result ${index}: duration must be a number`
+    );
   } else if (result.duration < 0) {
-    errors.push(`Test result ${index}: duration cannot be negative`);
+    errors.push(
+      `Test result ${index}: duration cannot be negative`
+    );
   }
 
-  if (!result.module || typeof result.module !== "string" || !result.module.trim()) {
-    errors.push(`Test result ${index}: module is required`);
+  if (
+    !result.module ||
+    typeof result.module !== "string" ||
+    !result.module.trim()
+  ) {
+    errors.push(
+      `Test result ${index}: module is required`
+    );
   }
 
-  if (!result.framework || typeof result.framework !== "string" || !result.framework.trim()) {
-    errors.push(`Test result ${index}: framework is required`);
+  if (
+    !result.framework ||
+    typeof result.framework !== "string" ||
+    !result.framework.trim()
+  ) {
+    errors.push(
+      `Test result ${index}: framework is required`
+    );
   }
 
   return errors;
@@ -58,25 +101,40 @@ function validateSingleResult(result: any, index: number): string[] {
  * @param data Request body
  * @returns Array of validation error messages
  */
-async function validateTestResults(data: any): Promise<string[]> {
+async function validateTestResults(
+  data: any
+): Promise<string[]> {
   const errors: string[] = [];
 
   if (data.test_run_id === undefined) {
     errors.push("test_run_id is required");
-  } else if (typeof data.test_run_id !== "number" || data.test_run_id <= 0) {
-    errors.push("test_run_id must be a positive integer");
+  } else if (
+    typeof data.test_run_id !== "number" ||
+    data.test_run_id <= 0
+  ) {
+    errors.push(
+      "test_run_id must be a positive integer"
+    );
   } else {
     // Check if test_run_id exists
-    const runCheck = await pool.query("SELECT id FROM test_runs WHERE id = $1", [data.test_run_id]);
+    const runCheck = await pool.query(
+      "SELECT id FROM test_runs WHERE id = $1",
+      [data.test_run_id]
+    );
+
     if (runCheck.rowCount === 0) {
-      errors.push(`Test run with ID ${data.test_run_id} not found`);
+      errors.push(
+        `Test run with ID ${data.test_run_id} not found`
+      );
     }
   }
 
   if (!Array.isArray(data.results)) {
     errors.push("Results must be an array");
   } else if (data.results.length === 0) {
-    errors.push("Results array must contain at least 1 test result");
+    errors.push(
+      "Results array must contain at least 1 test result"
+    );
   } else {
     data.results.forEach((r: any, i: number) => {
       errors.push(...validateSingleResult(r, i));
@@ -92,21 +150,34 @@ async function validateTestResults(data: any): Promise<string[]> {
  * @param results Array of test results
  * @returns Inserted records
  */
-async function insertTestResults(test_run_id: number, results: any[]) {
+async function insertTestResults(
+  test_run_id: number,
+  results: any[]
+) {
   const client = await pool.connect();
+
   try {
     await client.query("BEGIN");
 
     const inserted: any[] = [];
+
     for (const r of results) {
       const status = r.status.toUpperCase();
+
       const query = `
         INSERT INTO test_results (
-          test_run_id, test_name, status, duration, module, framework, created_at
+          test_run_id,
+          test_name,
+          status,
+          duration,
+          module,
+          framework,
+          created_at
         )
         VALUES ($1, $2, $3, $4, $5, $6, NOW())
         RETURNING *;
       `;
+
       const values = [
         test_run_id,
         r.test_name.trim(),
@@ -115,11 +186,17 @@ async function insertTestResults(test_run_id: number, results: any[]) {
         r.module.trim(),
         r.framework.trim(),
       ];
-      const res = await client.query(query, values);
-      inserted.push(res.rows[0]);
+
+      const result = await client.query(
+        query,
+        values
+      );
+
+      inserted.push(result.rows[0]);
     }
 
     await client.query("COMMIT");
+
     return inserted;
   } catch (err) {
     await client.query("ROLLBACK");
@@ -129,41 +206,177 @@ async function insertTestResults(test_run_id: number, results: any[]) {
   }
 }
 
-// POST /api/test-results
-router.post("/", async (req: Request, res: Response) => {
-  console.log("Incoming test results request:", req.body);
-
+/**
+ * Send Slack notifications for failed tests.
+ *
+ * Slack failures are intentionally ignored so that
+ * a Slack problem does not cause the test result API
+ * itself to fail.
+ */
+async function sendFailureSlackAlerts(
+  testRunId: number,
+  insertedResults: any[]
+): Promise<void> {
   try {
-    const errors = await validateTestResults(req.body);
-    if (errors.length > 0) {
-      return res.status(400).json({
+    const failedTests = insertedResults.filter(
+      (result) =>
+        result.status === TestStatus.FAIL
+    );
+
+    if (failedTests.length === 0) {
+      return;
+    }
+
+    // Get project associated with the test run
+    const runResult = await pool.query(
+      `
+      SELECT project_id
+      FROM test_runs
+      WHERE id = $1
+      `,
+      [testRunId]
+    );
+
+    if (runResult.rows.length === 0) {
+      console.error(
+        `Test run ${testRunId} not found while sending Slack alert`
+      );
+      return;
+    }
+
+    const projectId =
+      runResult.rows[0].project_id;
+
+    // Get organization associated with the project
+    const orgResult = await pool.query(
+      `
+      SELECT org_id
+      FROM projects
+      WHERE id = $1
+      `,
+      [projectId]
+    );
+
+    if (orgResult.rows.length === 0) {
+      console.error(
+        `Project ${projectId} not found while sending Slack alert`
+      );
+      return;
+    }
+
+    const orgId = orgResult.rows[0].org_id;
+
+    // Get enabled Slack configuration
+    const slackResult = await pool.query(
+      `
+      SELECT webhook_url
+      FROM slack_configs
+      WHERE org_id = $1
+        AND enabled = TRUE
+      LIMIT 1
+      `,
+      [orgId]
+    );
+
+    if (slackResult.rows.length === 0) {
+      console.log(
+        `Slack is not configured for organization ${orgId}`
+      );
+      return;
+    }
+
+    const webhookUrl =
+      slackResult.rows[0].webhook_url;
+
+    // Send one Slack message for each failed test
+    for (const failedTest of failedTests) {
+      const message =
+        formatTestFailureMessage(
+          failedTest.test_name,
+          `Test failed with status: ${failedTest.status}`,
+          projectId
+        );
+
+      const sent = await sendSlackMessage(
+        webhookUrl,
+        message
+      );
+
+      if (!sent) {
+        console.error(
+          `Failed to send Slack alert for test: ${failedTest.test_name}`
+        );
+      }
+    }
+  } catch (error) {
+    console.error(
+      "Slack notification error:",
+      error
+    );
+  }
+}
+
+// POST /api/test-results
+router.post(
+  "/",
+  async (req: Request, res: Response) => {
+    console.log(
+      "Incoming test results request:",
+      req.body
+    );
+
+    try {
+      const errors =
+        await validateTestResults(req.body);
+
+      if (errors.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Validation failed",
+          errors,
+          timestamp: new Date(),
+        });
+      }
+
+      const inserted =
+        await insertTestResults(
+          req.body.test_run_id,
+          req.body.results
+        );
+
+      // ==========================================
+      // Slack notification for failed tests
+      // ==========================================
+
+      await sendFailureSlackAlerts(
+        req.body.test_run_id,
+        inserted
+      );
+
+      return res.status(201).json({
+        success: true,
+        message: `${inserted.length} test results created successfully`,
+        data: {
+          inserted_count: inserted.length,
+          test_run_id:
+            req.body.test_run_id,
+          results: inserted,
+        },
+      });
+    } catch (err: any) {
+      console.error(
+        "Database error:",
+        err.message
+      );
+
+      return res.status(500).json({
         success: false,
-        message: "Validation failed",
-        errors,
+        message: `Failed to insert test results: ${err.message}`,
+        errors: [err.message],
         timestamp: new Date(),
       });
     }
-
-    const inserted = await insertTestResults(req.body.test_run_id, req.body.results);
-
-    return res.status(201).json({
-      success: true,
-      message: `${inserted.length} test results created successfully`,
-      data: {
-        inserted_count: inserted.length,
-        test_run_id: req.body.test_run_id,
-        results: inserted,
-      },
-    });
-  } catch (err: any) {
-    console.error("Database error:", err.message);
-    return res.status(500).json({
-      success: false,
-      message: `Failed to insert test results: ${err.message}`,
-      errors: [err.message],
-      timestamp: new Date(),
-    });
   }
-});
+);
 
 export default router;

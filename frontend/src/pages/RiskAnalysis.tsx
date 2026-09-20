@@ -1,11 +1,14 @@
 // frontend/src/pages/RiskAnalysis.tsx
+
 import React, { useEffect, useState } from "react";
+
 import RiskOverviewCard from "../components/Riskoverviewcard";
 import FlakyTestsTable from "../components/FlakyTestsTable";
 import RiskyTestsTable from "../components/RiskyTestsTable";
 import RiskDistributionChart from "../components/RiskDistributionChart";
 
 // ---------- Types ----------
+
 interface FlakyTest {
   test_name: string;
   pass_count: number;
@@ -34,38 +37,128 @@ interface RiskSummary {
 }
 
 // ---------- Main Risk Analysis Component ----------
-const RiskAnalysis: React.FC<{ projectId?: number }> = ({ projectId = 3 }) => {
+
+const RiskAnalysis: React.FC<{ projectId?: number }> = ({
+  projectId = 3,
+}) => {
   const [loading, setLoading] = useState(true);
+
   const [error, setError] = useState<string | null>(null);
+
   const [flakyTests, setFlakyTests] = useState<FlakyTest[]>([]);
+
   const [riskScores, setRiskScores] = useState<RiskScore[]>([]);
+
   const [summary, setSummary] = useState<RiskSummary | null>(null);
+
+  // ---------- Fetch Risk Analysis Data ----------
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
-      try {
-        const [flakyRes, scoresRes, summaryRes] = await Promise.all([
-          fetch(`http://localhost:5000/api/risk/flaky-tests?projectId=${projectId}`),
-          fetch(`http://localhost:5000/api/risk/test-scores?projectId=${projectId}`),
-          fetch(`http://localhost:5000/api/risk/summary?projectId=${projectId}`),
-        ]);
 
-        if (!flakyRes.ok || !scoresRes.ok || !summaryRes.ok) {
-          throw new Error("One or more API calls failed");
+      try {
+        // Get JWT token saved during login
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          throw new Error(
+            "Authentication token not found. Please login again."
+          );
         }
 
+        // Headers required by the protected backend APIs
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        };
+
+        // Call all three Risk APIs
+        const [flakyRes, scoresRes, summaryRes] =
+          await Promise.all([
+            fetch(
+              `http://localhost:5000/api/risk/flaky-tests?projectId=${projectId}`,
+              {
+                method: "GET",
+                headers,
+              }
+            ),
+
+            fetch(
+              `http://localhost:5000/api/risk/test-scores?projectId=${projectId}`,
+              {
+                method: "GET",
+                headers,
+              }
+            ),
+
+            fetch(
+              `http://localhost:5000/api/risk/summary?projectId=${projectId}`,
+              {
+                method: "GET",
+                headers,
+              }
+            ),
+          ]);
+
+        // ---------- Check API responses ----------
+
+        if (
+          !flakyRes.ok ||
+          !scoresRes.ok ||
+          !summaryRes.ok
+        ) {
+          const failedApis: string[] = [];
+
+          if (!flakyRes.ok) {
+            failedApis.push(
+              `flaky-tests (${flakyRes.status})`
+            );
+          }
+
+          if (!scoresRes.ok) {
+            failedApis.push(
+              `test-scores (${scoresRes.status})`
+            );
+          }
+
+          if (!summaryRes.ok) {
+            failedApis.push(
+              `summary (${summaryRes.status})`
+            );
+          }
+
+          throw new Error(
+            `Risk API failed: ${failedApis.join(", ")}`
+          );
+        }
+
+        // ---------- Convert responses to JSON ----------
+
         const flakyJson = await flakyRes.json();
+
         const scoresJson = await scoresRes.json();
+
         const summaryJson = await summaryRes.json();
 
+        // ---------- Store API data ----------
+
         setFlakyTests(flakyJson.data);
+
         setRiskScores(scoresJson.data);
+
         setSummary(summaryJson.data);
       } catch (err: any) {
-        console.error(err);
-        setError(err.message || "Unknown error occurred");
+        console.error(
+          "Risk Analysis error:",
+          err
+        );
+
+        setError(
+          err.message ||
+            "Unknown error occurred"
+        );
       } finally {
         setLoading(false);
       }
@@ -74,19 +167,46 @@ const RiskAnalysis: React.FC<{ projectId?: number }> = ({ projectId = 3 }) => {
     fetchData();
   }, [projectId]);
 
-  if (loading)
+  // ---------- Loading State ----------
+
+  if (loading) {
     return (
-      <div style={{ padding: "40px", textAlign: "center", color: "#f0f0f0" }}>
+      <div
+        style={{
+          padding: "40px",
+          textAlign: "center",
+          color: "#f0f0f0",
+        }}
+      >
         <p>Loading risk analysis...</p>
       </div>
     );
+  }
 
-  if (error)
+  // ---------- Error State ----------
+
+  if (error) {
     return (
-      <div style={{ padding: "40px", textAlign: "center", color: "#f0f0f0" }}>
-        <p style={{ color: "#FF6B6B" }}>Error: {error}</p>
+      <div
+        style={{
+          padding: "40px",
+          textAlign: "center",
+          color: "#f0f0f0",
+        }}
+      >
+        <p
+          style={{
+            color: "#FF6B6B",
+            marginBottom: "20px",
+          }}
+        >
+          Error: {error}
+        </p>
+
         <button
-          onClick={() => window.location.reload()}
+          onClick={() =>
+            window.location.reload()
+          }
           style={{
             padding: "10px 20px",
             background: "#0088FE",
@@ -100,13 +220,25 @@ const RiskAnalysis: React.FC<{ projectId?: number }> = ({ projectId = 3 }) => {
         </button>
       </div>
     );
+  }
 
-  if (!summary)
+  // ---------- No Data State ----------
+
+  if (!summary) {
     return (
-      <div style={{ padding: "40px", textAlign: "center", color: "#f0f0f0" }}>
+      <div
+        style={{
+          padding: "40px",
+          textAlign: "center",
+          color: "#f0f0f0",
+        }}
+      >
         <p>No data available</p>
       </div>
     );
+  }
+
+  // ---------- Main UI ----------
 
   return (
     <div
@@ -119,35 +251,59 @@ const RiskAnalysis: React.FC<{ projectId?: number }> = ({ projectId = 3 }) => {
       }}
     >
       {/* Header */}
+
       <header>
         <h1>Risk Analysis Dashboard</h1>
-        <p>Project ID: {projectId}</p>
+
+        <p>
+          Project ID: {projectId}
+        </p>
       </header>
 
       {/* SECTION 1: Risk Overview */}
-      <section style={{ marginTop: "30px" }}>
-        <h2 style={{ marginBottom: "20px" }}>📊 Risk Overview</h2>
 
-        {/* Cards Row */}
+      <section
+        style={{
+          marginTop: "30px",
+        }}
+      >
+        <h2
+          style={{
+            marginBottom: "20px",
+          }}
+        >
+          📊 Risk Overview
+        </h2>
+
+        {/* Risk Cards */}
+
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+            gridTemplateColumns:
+              "repeat(auto-fit, minmax(150px, 1fr))",
             gap: "20px",
             marginBottom: "20px",
           }}
         >
-          <RiskOverviewCard label="Total Tests" value={summary.total_tests} icon="📋" />
+          <RiskOverviewCard
+            label="Total Tests"
+            value={summary.total_tests}
+            icon="📋"
+          />
+
           <RiskOverviewCard
             label="🟢 LOW Risk"
             value={summary.low_risk_tests}
             color="green"
           />
+
           <RiskOverviewCard
             label="🟡 MEDIUM Risk"
             value={summary.medium_risk_tests}
             color="yellow"
           />
+
           <RiskOverviewCard
             label="🔴 HIGH Risk"
             value={summary.high_risk_tests}
@@ -155,33 +311,18 @@ const RiskAnalysis: React.FC<{ projectId?: number }> = ({ projectId = 3 }) => {
           />
         </div>
 
-        {/* Stats Highlights */}
+        {/* Highlight Statistics */}
+
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gridTemplateColumns:
+              "repeat(auto-fit, minmax(300px, 1fr))",
             gap: "20px",
             marginBottom: "20px",
           }}
         >
-          <div
-            style={{
-              background: "#1e1e1e",
-              padding: "15px",
-              borderRadius: "8px",
-              border: "1px solid #333",
-            }}
-          >
-            <p style={{ margin: 0, fontSize: "16px" }}>
-              🏆 <strong>Highest Risk Test</strong>
-            </p>
-            <p style={{ margin: "10px 0 0 0", color: "#FF6B6B", fontSize: "18px", fontWeight: "bold" }}>
-              {summary.highest_risk_test_name}
-            </p>
-            <p style={{ margin: "5px 0 0 0", color: "#999", fontSize: "14px" }}>
-              Score: {summary.highest_risk_score.toFixed(1)}
-            </p>
-          </div>
+          {/* Highest Risk Test */}
 
           <div
             style={{
@@ -191,32 +332,125 @@ const RiskAnalysis: React.FC<{ projectId?: number }> = ({ projectId = 3 }) => {
               border: "1px solid #333",
             }}
           >
-            <p style={{ margin: 0, fontSize: "16px" }}>
-              ⚠️ <strong>Most Flaky Test</strong>
+            <p
+              style={{
+                margin: 0,
+                fontSize: "16px",
+              }}
+            >
+              🏆{" "}
+              <strong>
+                Highest Risk Test
+              </strong>
             </p>
-            <p style={{ margin: "10px 0 0 0", color: "#FFBB28", fontSize: "18px", fontWeight: "bold" }}>
+
+            <p
+              style={{
+                margin: "10px 0 0 0",
+                color: "#FF6B6B",
+                fontSize: "18px",
+                fontWeight: "bold",
+              }}
+            >
+              {summary.highest_risk_test_name}
+            </p>
+
+            <p
+              style={{
+                margin: "5px 0 0 0",
+                color: "#999",
+                fontSize: "14px",
+              }}
+            >
+              Score:{" "}
+              {summary.highest_risk_score.toFixed(
+                1
+              )}
+            </p>
+          </div>
+
+          {/* Most Flaky Test */}
+
+          <div
+            style={{
+              background: "#1e1e1e",
+              padding: "15px",
+              borderRadius: "8px",
+              border: "1px solid #333",
+            }}
+          >
+            <p
+              style={{
+                margin: 0,
+                fontSize: "16px",
+              }}
+            >
+              ⚠️{" "}
+              <strong>
+                Most Flaky Test
+              </strong>
+            </p>
+
+            <p
+              style={{
+                margin: "10px 0 0 0",
+                color: "#FFBB28",
+                fontSize: "18px",
+                fontWeight: "bold",
+              }}
+            >
               {summary.most_flaky_test_name}
             </p>
-            <p style={{ margin: "5px 0 0 0", color: "#999", fontSize: "14px" }}>
-              Flaky Count: {summary.flakiness_count}
+
+            <p
+              style={{
+                margin: "5px 0 0 0",
+                color: "#999",
+                fontSize: "14px",
+              }}
+            >
+              Flaky Count:{" "}
+              {summary.flakiness_count}
             </p>
           </div>
         </div>
       </section>
 
       {/* SECTION 2: Flaky Tests */}
-      <section style={{ marginTop: "40px" }}>
-        <FlakyTestsTable tests={flakyTests} />
+
+      <section
+        style={{
+          marginTop: "40px",
+        }}
+      >
+        <FlakyTestsTable
+          tests={flakyTests}
+        />
       </section>
 
       {/* SECTION 3: Risky Tests */}
-      <section style={{ marginTop: "40px" }}>
-        <RiskyTestsTable tests={riskScores} />
+
+      <section
+        style={{
+          marginTop: "40px",
+        }}
+      >
+        <RiskyTestsTable
+          tests={riskScores}
+        />
       </section>
 
-      {/* SECTION 4: Risk Distribution Chart */}
-      <section style={{ marginTop: "40px", marginBottom: "40px" }}>
-        <RiskDistributionChart summary={summary} />
+      {/* SECTION 4: Risk Distribution */}
+
+      <section
+        style={{
+          marginTop: "40px",
+          marginBottom: "40px",
+        }}
+      >
+        <RiskDistributionChart
+          summary={summary}
+        />
       </section>
     </div>
   );
