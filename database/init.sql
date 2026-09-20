@@ -62,6 +62,28 @@ CREATE TABLE test_results (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE commits (
+  id SERIAL PRIMARY KEY,
+  project_id INTEGER REFERENCES projects(id),
+  commit_hash VARCHAR(255) UNIQUE NOT NULL,
+  message TEXT,
+  author VARCHAR(255),
+  timestamp TIMESTAMP,
+  files_changed JSON,
+  risk_score INTEGER,
+  risk_level VARCHAR(50),
+  pr_id VARCHAR(255),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE commit_test_run_link (
+  id SERIAL PRIMARY KEY,
+  commit_id INTEGER REFERENCES commits(id),
+  test_run_id INTEGER REFERENCES test_runs(id),
+  match_confidence INTEGER,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
 -- Indexes for frequently queried columns
 CREATE INDEX idx_projects_org_id ON projects(org_id);
 CREATE INDEX idx_test_runs_project_id ON test_runs(project_id);

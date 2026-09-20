@@ -7,15 +7,19 @@ import express, {
 import dotenv from "dotenv";
 import cors from "cors";
 
+// Load environment variables
+dotenv.config();
+console.log('✅ .env loaded');
+console.log('GITHUB_TOKEN:', process.env.GITHUB_TOKEN ? '✅ EXISTS' : '❌ MISSING');
+
+
 // Import routes
 import testRunsRouter from "./routes/testRuns";
 import testResultsRouter from "./routes/testResults";
 import healthRouter from "./routes/health";
 import dashboardRouter from "./routes/dashboard";
 import riskAnalysisRouter from "./routes/riskAnalysis"; // NEW
-
-// Load environment variables
-dotenv.config();
+import githubRouter from './routes/github';
 
 const app: Application = express();
 const PORT: number = parseInt(process.env.PORT || "5000", 10);
@@ -41,6 +45,7 @@ app.use("/api/dashboard", dashboardRouter);
 // Risk analysis routes
 app.use("/api/risk", riskAnalysisRouter);
 
+app.use('/api/github', githubRouter);
 // 404 handler
 app.use((req: Request, res: Response) => {
   res.status(404).json({

@@ -1,6 +1,6 @@
 // frontend/src/pages/RiskAnalysis.tsx
 import React, { useEffect, useState } from "react";
-import RiskOverviewCard from "../components/RiskOverviewCard";
+import RiskOverviewCard from "../components/Riskoverviewcard";
 import FlakyTestsTable from "../components/FlakyTestsTable";
 import RiskyTestsTable from "../components/RiskyTestsTable";
 import RiskDistributionChart from "../components/RiskDistributionChart";
