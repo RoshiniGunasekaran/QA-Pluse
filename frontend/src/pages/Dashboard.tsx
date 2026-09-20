@@ -1,5 +1,6 @@
 // frontend/src/pages/Dashboard.tsx
 import React, { useEffect, useState } from "react";
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 // ---------- Types ----------
 interface Summary {
@@ -74,23 +75,74 @@ const ReleaseHealthCard: React.FC<{ health: number; status: string }> = ({ healt
 
 const Charts: React.FC<{ data: ChartData | null }> = ({ data }) => {
   if (!data) return <p>No chart data available</p>;
+
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#FF6B6B'];
+
   return (
-    <div className="charts-grid">
-      <div>
-        <h3>Pass Rate Trend</h3>
-        <ul>
-          {data.pass_rate_trend.map((p) => (
-            <li key={p.run_number}>Run {p.run_number}: {p.pass_rate}%</li>
-          ))}
-        </ul>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: "20px", marginTop: "20px" }}>
+      
+      {/* Line Chart: Pass Rate Trend */}
+      <div style={{ background: "#1e1e1e", padding: "20px", borderRadius: "8px", border: "1px solid #333" }}>
+        <h3 style={{ marginTop: 0 }}>📈 Pass Rate Trend</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={data.pass_rate_trend}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+            <XAxis dataKey="run_number" stroke="#999" />
+            <YAxis stroke="#999" domain={[0, 100]} />
+            <Tooltip contentStyle={{ background: "#333", border: "1px solid #666", color: "#fff" }} />
+            <Legend />
+            <Line 
+              type="monotone" 
+              dataKey="pass_rate" 
+              stroke="#00C49F" 
+              name="Pass Rate (%)" 
+              strokeWidth={2}
+              dot={{ fill: '#00C49F', r: 5 }}
+              activeDot={{ r: 7 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
-      <div>
-        <h3>Failure Distribution</h3>
-        <ul>
-          {data.failure_distribution.map((f) => (
-            <li key={f.framework}>{f.framework}: {f.failure_count} ({f.percentage}%)</li>
-          ))}
-        </ul>
+
+      {/* Bar Chart: Test Count Trend */}
+      <div style={{ background: "#1e1e1e", padding: "20px", borderRadius: "8px", border: "1px solid #333" }}>
+        <h3 style={{ marginTop: 0 }}>📊 Test Count Trend</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={data.test_count_trend}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+            <XAxis dataKey="run_number" stroke="#999" />
+            <YAxis stroke="#999" />
+            <Tooltip contentStyle={{ background: "#333", border: "1px solid #666", color: "#fff" }} />
+            <Legend />
+            <Bar dataKey="passed" stackId="a" fill="#00C49F" name="Passed" />
+            <Bar dataKey="failed" stackId="a" fill="#FF6B6B" name="Failed" />
+            <Bar dataKey="skipped" stackId="a" fill="#FFBB28" name="Skipped" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Pie Chart: Failure Distribution */}
+      <div style={{ background: "#1e1e1e", padding: "20px", borderRadius: "8px", border: "1px solid #333" }}>
+        <h3 style={{ marginTop: 0 }}>🥧 Failure Distribution</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie
+              data={data.failure_distribution}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              label={(props) => `${props.payload.framework}: ${props.payload.percentage}%`}
+              outerRadius={80}
+              fill="#8884d8"
+              dataKey="failure_count"
+            >
+              {data.failure_distribution.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip contentStyle={{ background: "#333", border: "1px solid #666", color: "#fff" }} />
+          </PieChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
@@ -142,11 +194,11 @@ const Dashboard: React.FC<{ projectId?: number }> = ({ projectId = 3 }) => {
       setError(null);
       try {
         const [summaryRes, trendsRes, modulesRes, recentRes, chartsRes] = await Promise.all([
-            fetch(`http://localhost:5000/api/dashboard/summary?projectId=${projectId}`),
-            fetch(`http://localhost:5000/api/dashboard/trends?projectId=${projectId}&limit=10`),
-            fetch(`http://localhost:5000/api/dashboard/modules?projectId=${projectId}`),
-            fetch(`http://localhost:5000/api/dashboard/recent-runs?projectId=${projectId}&limit=5`),
-            fetch(`http://localhost:5000/api/dashboard/charts?projectId=${projectId}`),
+          fetch(`http://localhost:5000/api/dashboard/summary?projectId=${projectId}`),
+          fetch(`http://localhost:5000/api/dashboard/trends?projectId=${projectId}&limit=10`),
+          fetch(`http://localhost:5000/api/dashboard/modules?projectId=${projectId}`),
+          fetch(`http://localhost:5000/api/dashboard/recent-runs?projectId=${projectId}&limit=5`),
+          fetch(`http://localhost:5000/api/dashboard/charts?projectId=${projectId}`),
         ]);
 
         if (!summaryRes.ok || !trendsRes.ok || !modulesRes.ok || !recentRes.ok || !chartsRes.ok) {
@@ -191,7 +243,7 @@ const Dashboard: React.FC<{ projectId?: number }> = ({ projectId = 3 }) => {
         <p>Project ID: {projectId}</p>
       </header>
 
-      <section className="statistics" style={{ display: "flex", gap: "20px" }}>
+      <section className="statistics" style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
         <StatisticsCard label="Total Tests" value={summary.total_tests} />
         <StatisticsCard label="Passed" value={summary.passed_tests} percentage={summary.passed_percentage} />
         <StatisticsCard label="Failed" value={summary.failed_tests} percentage={summary.failed_percentage} />

@@ -1,4 +1,9 @@
-import express, { Application, Request, Response, NextFunction } from "express";
+import express, {
+  Application,
+  Request,
+  Response,
+  NextFunction,
+} from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 
@@ -6,7 +11,8 @@ import cors from "cors";
 import testRunsRouter from "./routes/testRuns";
 import testResultsRouter from "./routes/testResults";
 import healthRouter from "./routes/health";
-import dashboardRouter from "./routes/dashboard"; // ✅ NEW import
+import dashboardRouter from "./routes/dashboard";
+import riskAnalysisRouter from "./routes/riskAnalysis"; // NEW
 
 // Load environment variables
 dotenv.config();
@@ -17,7 +23,7 @@ const PORT: number = parseInt(process.env.PORT || "5000", 10);
 // Middleware
 app.use(express.json());
 
-// ✅ CORS setup
+// CORS setup
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -26,13 +32,16 @@ app.use(
   })
 );
 
-// ✅ Register routes
+// Register routes
 app.use("/api/test-runs", testRunsRouter);
 app.use("/api/test-results", testResultsRouter);
 app.use("/health", healthRouter);
-app.use("/api/dashboard", dashboardRouter); // ✅ NEW route registration
+app.use("/api/dashboard", dashboardRouter);
 
-// ✅ 404 handler
+// Risk analysis routes
+app.use("/api/risk", riskAnalysisRouter);
+
+// 404 handler
 app.use((req: Request, res: Response) => {
   res.status(404).json({
     success: false,
@@ -41,16 +50,24 @@ app.use((req: Request, res: Response) => {
   });
 });
 
-// ✅ Global error handling middleware
-app.use((err: Error, req: Request, res: Response, next: NextFunction): void => {
-  console.error("Unhandled error:", err.message);
-  res.status(500).json({
-    success: false,
-    message: "Internal Server Error",
-    errors: [err.message],
-    timestamp: new Date(),
-  });
-});
+// Global error handling middleware
+app.use(
+  (
+    err: Error,
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): void => {
+    console.error("Unhandled error:", err.message);
+
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      errors: [err.message],
+      timestamp: new Date(),
+    });
+  }
+);
 
 // Start server
 app.listen(PORT, (): void => {
