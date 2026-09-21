@@ -1,3 +1,4 @@
+// frontend/src/pages/Login.tsx
 import React, { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -6,6 +7,7 @@ const Login: React.FC = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -49,7 +51,6 @@ const Login: React.FC = () => {
       }
 
       localStorage.setItem("token", data.token);
-
       navigate("/dashboard");
     } catch (err) {
       console.error("Login error:", err);
@@ -60,76 +61,150 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            QA Pulse Login
-          </h1>
-          <p className="text-gray-500 mt-2">
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #0F172A 0%, #1a2d4d 100%)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "20px",
+      }}
+    >
+      <div
+        className="glass-card"
+        style={{
+          width: "100%",
+          maxWidth: "420px",
+          padding: "40px",
+          animation: "slideIn 0.5s ease-out",
+        }}
+      >
+        {/* Header */}
+        <div style={{ textAlign: "center", marginBottom: "30px" }}>
+          <h1 style={{ marginBottom: "8px" }}>QA Pulse</h1>
+          <p style={{ color: "var(--text-secondary)", fontSize: "16px" }}>
             Sign in to your account
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Form */}
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          {/* Email Input */}
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Email
+            <label style={{ display: "block", marginBottom: "8px", fontWeight: "600", fontSize: "14px" }}>
+              📧 Email Address
             </label>
-
             <input
-              id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="your@email.com"
               disabled={loading}
+              style={{
+                borderColor: error && !isValidEmail(email) ? "var(--danger)" : "var(--border-light)",
+              }}
             />
           </div>
 
+          {/* Password Input */}
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Password
+            <label style={{ display: "block", marginBottom: "8px", fontWeight: "600", fontSize: "14px" }}>
+              🔒 Password
             </label>
-
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              disabled={loading}
-            />
+            <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                disabled={loading}
+                style={{
+                  paddingRight: "45px",
+                  borderColor: error && !password ? "var(--danger)" : "var(--border-light)",
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: "12px",
+                  background: "none",
+                  border: "none",
+                  color: "var(--text-secondary)",
+                  cursor: "pointer",
+                  fontSize: "18px",
+                }}
+              >
+                {showPassword ? "👁️" : "👁️‍🗨️"}
+              </button>
+            </div>
           </div>
 
+          {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-              {error}
+            <div
+              style={{
+                background: "rgba(239, 68, 68, 0.1)",
+                border: "1px solid #EF4444",
+                color: "#FCA5A5",
+                padding: "12px 16px",
+                borderRadius: "8px",
+                fontSize: "14px",
+                display: "flex",
+                gap: "8px",
+              }}
+            >
+              <span>⚠️</span>
+              <span>{error}</span>
             </div>
           )}
 
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+            className="btn-primary"
+            style={{
+              width: "100%",
+              height: "48px",
+              fontSize: "16px",
+              marginTop: "8px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+            }}
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? (
+              <>
+                <span className="spinner" style={{ width: "16px", height: "16px" }} />
+                Logging in...
+              </>
+            ) : (
+              "Login"
+            )}
           </button>
         </form>
 
-        <div className="text-center mt-6 text-sm text-gray-600">
+        {/* Footer */}
+        <div style={{ textAlign: "center", marginTop: "24px", fontSize: "14px", color: "var(--text-secondary)" }}>
           Don't have an account?{" "}
           <Link
             to="/signup"
-            className="text-blue-600 font-medium hover:text-blue-700"
+            style={{
+              color: "var(--primary)",
+              fontWeight: "600",
+              textDecoration: "none",
+              transition: "color 0.3s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "var(--secondary)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "var(--primary)";
+            }}
           >
             Sign up
           </Link>

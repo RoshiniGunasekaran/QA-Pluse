@@ -1,3 +1,4 @@
+// frontend/src/App.tsx
 import React, { useEffect, useState } from "react";
 import {
   BrowserRouter,
@@ -43,6 +44,9 @@ const AppContent: React.FC = () => {
   });
 
   const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   const currentPage: Page =
     location.pathname === "/login"
@@ -52,6 +56,19 @@ const AppContent: React.FC = () => {
         : location.pathname === "/risk-analysis"
           ? "risk-analysis"
           : "dashboard";
+
+  // Handle screen resize
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth >= 768) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -72,6 +89,7 @@ const AppContent: React.FC = () => {
 
     setCurrentUser(null);
     setSelectedOrgId(null);
+    setIsMobileMenuOpen(false);
 
     navigate("/login", { replace: true });
   };
@@ -81,167 +99,318 @@ const AppContent: React.FC = () => {
       case "dashboard":
         navigate("/dashboard");
         break;
-
       case "risk-analysis":
         navigate("/risk-analysis");
         break;
-
       case "login":
         navigate("/login");
         break;
-
       case "signup":
         navigate("/signup");
         break;
     }
+    setIsMobileMenuOpen(false);
   };
 
-  // Authentication pages don't show dashboard navbar
+  // Authentication pages - no navbar
   if (currentPage === "login" || currentPage === "signup") {
     return (
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-
-        <Route
-          path="/dashboard"
-          element={<Navigate to="/dashboard" replace />}
-        />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     );
   }
 
   return (
     <div
-      className="app"
       style={{
-        background: "#121212",
-        color: "#f0f0f0",
+        background: "linear-gradient(135deg, #0F172A 0%, #1a2d4d 100%)",
+        color: "var(--text-primary)",
         minHeight: "100vh",
       }}
     >
-      {/* Navigation */}
+      {/* ========== NAVBAR ========== */}
       <nav
         style={{
+          background: "linear-gradient(90deg, #3B82F6 0%, #8B5CF6 100%)",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
+          padding: isMobile ? "15px 20px" : "0 30px",
           display: "flex",
-          gap: "20px",
-          padding: "20px",
-          borderBottom: "1px solid #333",
-          background: "#0a0a0a",
           alignItems: "center",
+          justifyContent: "space-between",
+          height: isMobile ? "60px" : "70px",
+          position: "relative",
+          zIndex: 100,
         }}
       >
         {/* Logo */}
         <h1
           style={{
-            marginRight: "auto",
-            marginTop: 0,
-            marginBottom: 0,
-            fontSize: "24px",
+            fontSize: isMobile ? "20px" : "28px",
+            margin: 0,
+            cursor: "pointer",
+            color: "white",
+            background: "none",
+            WebkitTextFillColor: "unset",
           }}
+          onClick={() => navigate("/dashboard")}
         >
           QA Pulse
         </h1>
 
-        {/* Organization Selector */}
-        {currentUser && (
-          <OrgSelector
-            onOrgChange={(orgId) => {
-              setSelectedOrgId(orgId);
-            }}
-          />
-        )}
-
-        {/* Dashboard */}
-        <button
-          onClick={() => handleNavigate("dashboard")}
-          style={{
-            padding: "10px 20px",
-            background:
-              currentPage === "dashboard" ? "#0088FE" : "#333",
-            color: "#fff",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "16px",
-            fontWeight:
-              currentPage === "dashboard" ? "bold" : "normal",
-          }}
-        >
-          📊 Dashboard
-        </button>
-
-        {/* Risk Analysis */}
-        <button
-          onClick={() => handleNavigate("risk-analysis")}
-          style={{
-            padding: "10px 20px",
-            background:
-              currentPage === "risk-analysis" ? "#FF6B6B" : "#333",
-            color: "#fff",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "16px",
-            fontWeight:
-              currentPage === "risk-analysis" ? "bold" : "normal",
-          }}
-        >
-          ⚠️ Risk Analysis
-        </button>
-
-        {/* Logout */}
-        {currentUser && (
-          <button
-            onClick={handleLogout}
+        {/* Desktop Navigation */}
+        {!isMobile && (
+          <div
             style={{
-              padding: "10px 20px",
-              background: "#dc2626",
-              color: "#fff",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              fontSize: "16px",
+              display: "flex",
+              alignItems: "center",
+              gap: "20px",
+              marginLeft: "auto",
             }}
           >
-            Logout
+            {/* Org Selector */}
+            {currentUser && (
+              <OrgSelector
+                onOrgChange={(orgId) => {
+                  setSelectedOrgId(orgId);
+                }}
+              />
+            )}
+
+            {/* Dashboard Button */}
+            <button
+              onClick={() => handleNavigate("dashboard")}
+              style={{
+                padding: "10px 20px",
+                background: currentPage === "dashboard" ? "rgba(255, 255, 255, 0.2)" : "transparent",
+                color: "white",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontSize: "16px",
+                fontWeight: currentPage === "dashboard" ? "600" : "500",
+                transition: "all 0.3s ease",
+              }}
+              onMouseEnter={(e) => {
+                if (currentPage !== "dashboard") {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (currentPage !== "dashboard") {
+                  e.currentTarget.style.background = "transparent";
+                }
+              }}
+            >
+              📊 Dashboard
+            </button>
+
+            {/* Risk Analysis Button */}
+            <button
+              onClick={() => handleNavigate("risk-analysis")}
+              style={{
+                padding: "10px 20px",
+                background: currentPage === "risk-analysis" ? "rgba(255, 255, 255, 0.2)" : "transparent",
+                color: "white",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontSize: "16px",
+                fontWeight: currentPage === "risk-analysis" ? "600" : "500",
+                transition: "all 0.3s ease",
+              }}
+              onMouseEnter={(e) => {
+                if (currentPage !== "risk-analysis") {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (currentPage !== "risk-analysis") {
+                  e.currentTarget.style.background = "transparent";
+                }
+              }}
+            >
+              ⚠️ Risk Analysis
+            </button>
+
+            {/* Logout Button */}
+            {currentUser && (
+              <button
+                onClick={handleLogout}
+                style={{
+                  padding: "10px 20px",
+                  background: "rgba(255, 255, 255, 0.2)",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  fontSize: "16px",
+                  fontWeight: "500",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.3)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)";
+                }}
+              >
+                🚪 Logout
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Mobile Hamburger Menu */}
+        {isMobile && (
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            style={{
+              background: "rgba(255, 255, 255, 0.2)",
+              border: "none",
+              color: "white",
+              fontSize: "24px",
+              cursor: "pointer",
+              padding: "8px",
+              borderRadius: "6px",
+            }}
+          >
+            ☰
           </button>
         )}
       </nav>
 
-      {/* Page Content */}
-      <div className="app-content">
+      {/* ========== MOBILE SIDEBAR MENU ========== */}
+      {isMobile && isMobileMenuOpen && (
+        <>
+          {/* Overlay */}
+          <div
+            onClick={() => setIsMobileMenuOpen(false)}
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0, 0, 0, 0.5)",
+              zIndex: 99,
+            }}
+          />
+
+          {/* Sidebar */}
+          <div
+            style={{
+              position: "fixed",
+              left: 0,
+              top: "60px",
+              width: "280px",
+              background: "rgba(30, 41, 59, 0.95)",
+              backdropFilter: "blur(10px)",
+              zIndex: 101,
+              padding: "20px",
+              maxHeight: "calc(100vh - 60px)",
+              overflowY: "auto",
+            }}
+          >
+            {/* Org Selector in Mobile */}
+            {currentUser && (
+              <div style={{ marginBottom: "20px" }}>
+                <OrgSelector
+                  onOrgChange={(orgId) => {
+                    setSelectedOrgId(orgId);
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Menu Items */}
+            <button
+              onClick={() => handleNavigate("dashboard")}
+              style={{
+                width: "100%",
+                padding: "15px 20px",
+                background: currentPage === "dashboard" ? "rgba(59, 130, 246, 0.3)" : "transparent",
+                color: "white",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontSize: "16px",
+                fontWeight: "600",
+                marginBottom: "10px",
+                transition: "all 0.3s ease",
+              }}
+            >
+              📊 Dashboard
+            </button>
+
+            <button
+              onClick={() => handleNavigate("risk-analysis")}
+              style={{
+                width: "100%",
+                padding: "15px 20px",
+                background: currentPage === "risk-analysis" ? "rgba(59, 130, 246, 0.3)" : "transparent",
+                color: "white",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontSize: "16px",
+                fontWeight: "600",
+                marginBottom: "10px",
+                transition: "all 0.3s ease",
+              }}
+            >
+              ⚠️ Risk Analysis
+            </button>
+
+            {/* Logout Button */}
+            {currentUser && (
+              <button
+                onClick={handleLogout}
+                style={{
+                  width: "100%",
+                  padding: "15px 20px",
+                  background: "rgba(239, 68, 68, 0.2)",
+                  color: "#FCA5A5",
+                  border: "1px solid rgba(239, 68, 68, 0.5)",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontSize: "16px",
+                  fontWeight: "600",
+                  marginTop: "20px",
+                  transition: "all 0.3s ease",
+                }}
+              >
+                🚪 Logout
+              </button>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* ========== PAGE CONTENT ========== */}
+      <div style={{ minHeight: "calc(100vh - 70px)", padding: isMobile ? "20px 15px" : "30px" }}>
         <Routes>
-          {/* Dashboard */}
           <Route
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <Dashboard
-                  projectId={projectId}
-                  orgId={selectedOrgId}
-                />
+                <Dashboard projectId={projectId} orgId={selectedOrgId} />
               </ProtectedRoute>
             }
           />
 
-          {/* Risk Analysis */}
           <Route
             path="/risk-analysis"
             element={
               <ProtectedRoute>
-                <RiskAnalysis
-                  projectId={projectId}
-                />
+                <RiskAnalysis projectId={projectId} />
               </ProtectedRoute>
             }
           />
 
-          {/* Default */}
-          <Route
-            path="*"
-            element={<Navigate to="/dashboard" replace />}
-          />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </div>
     </div>

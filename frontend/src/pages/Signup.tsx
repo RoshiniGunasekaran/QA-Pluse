@@ -1,3 +1,4 @@
+// frontend/src/pages/Signup.tsx
 import React, { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -8,6 +9,8 @@ const Signup: React.FC = () => {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -15,12 +18,27 @@ const Signup: React.FC = () => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   };
 
+  const getPasswordStrength = (pwd: string): { level: string; color: string } => {
+    if (!pwd) return { level: "", color: "" };
+    if (pwd.length < 6) return { level: "Weak", color: "var(--danger)" };
+    if (pwd.length < 10) return { level: "Medium", color: "var(--warning)" };
+    return { level: "Strong", color: "var(--success)" };
+  };
+
+  const passwordMatch = password === confirmPassword && password.length > 0;
+  const strength = getPasswordStrength(password);
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
 
     if (!isValidEmail(email)) {
       setError("Please enter a valid email address");
+      return;
+    }
+
+    if (!name || name.length < 2) {
+      setError("Please enter a valid name (min 2 characters)");
       return;
     }
 
@@ -57,7 +75,6 @@ const Signup: React.FC = () => {
       }
 
       localStorage.setItem("token", data.token);
-
       navigate("/dashboard");
     } catch (err) {
       console.error("Signup error:", err);
@@ -68,115 +85,236 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Create QA Pulse Account
-          </h1>
-
-          <p className="text-gray-500 mt-2">
-            Get started with QA Pulse
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #0F172A 0%, #1a2d4d 100%)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "20px",
+      }}
+    >
+      <div
+        className="glass-card"
+        style={{
+          width: "100%",
+          maxWidth: "480px",
+          padding: "40px",
+          animation: "slideIn 0.5s ease-out",
+        }}
+      >
+        {/* Header */}
+        <div style={{ textAlign: "center", marginBottom: "30px" }}>
+          <h1 style={{ marginBottom: "8px" }}>QA Pulse</h1>
+          <p style={{ color: "var(--text-secondary)", fontSize: "16px" }}>
+            Create your account
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Form */}
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          {/* Email Input */}
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Email
+            <label style={{ display: "block", marginBottom: "8px", fontWeight: "600", fontSize: "14px" }}>
+              📧 Email Address
             </label>
-
             <input
-              id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="your@email.com"
               disabled={loading}
             />
           </div>
 
+          {/* Name Input */}
           <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Name
+            <label style={{ display: "block", marginBottom: "8px", fontWeight: "600", fontSize: "14px" }}>
+              👤 Full Name
             </label>
-
             <input
-              id="name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Enter your name"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Your name"
               disabled={loading}
             />
           </div>
 
+          {/* Password Input */}
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Password
+            <label style={{ display: "block", marginBottom: "8px", fontWeight: "600", fontSize: "14px" }}>
+              🔒 Password
             </label>
+            <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Min 6 characters"
+                disabled={loading}
+                style={{ paddingRight: "45px" }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: "12px",
+                  background: "none",
+                  border: "none",
+                  color: "var(--text-secondary)",
+                  cursor: "pointer",
+                  fontSize: "18px",
+                }}
+              >
+                {showPassword ? "👁️" : "👁️‍🗨️"}
+              </button>
+            </div>
 
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Minimum 6 characters"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              disabled={loading}
-            />
+            {/* Password Strength */}
+            {password && (
+              <div style={{ marginTop: "8px", display: "flex", alignItems: "center", gap: "8px" }}>
+                <div
+                  style={{
+                    height: "4px",
+                    flex: 1,
+                    background: "rgba(255, 255, 255, 0.1)",
+                    borderRadius: "2px",
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      height: "100%",
+                      width: password.length < 6 ? "33%" : password.length < 10 ? "66%" : "100%",
+                      background: strength.color,
+                      transition: "all 0.3s ease",
+                    }}
+                  />
+                </div>
+                <span style={{ fontSize: "12px", color: strength.color, fontWeight: "600" }}>
+                  {strength.level}
+                </span>
+              </div>
+            )}
           </div>
 
+          {/* Confirm Password Input */}
           <div>
-            <label
-              htmlFor="confirmPassword"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Confirm Password
+            <label style={{ display: "block", marginBottom: "8px", fontWeight: "600", fontSize: "14px" }}>
+              ✓ Confirm Password
             </label>
+            <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Re-enter password"
+                disabled={loading}
+                style={{
+                  paddingRight: "45px",
+                  borderColor: confirmPassword && !passwordMatch ? "var(--danger)" : "var(--border-light)",
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                style={{
+                  position: "absolute",
+                  right: "12px",
+                  background: "none",
+                  border: "none",
+                  color: "var(--text-secondary)",
+                  cursor: "pointer",
+                  fontSize: "18px",
+                }}
+              >
+                {showConfirmPassword ? "👁️" : "👁️‍🗨️"}
+              </button>
+            </div>
 
-            <input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Re-enter your password"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              disabled={loading}
-            />
+            {/* Password Match Indicator */}
+            {confirmPassword && (
+              <div
+                style={{
+                  marginTop: "8px",
+                  fontSize: "12px",
+                  color: passwordMatch ? "var(--success)" : "var(--danger)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                }}
+              >
+                {passwordMatch ? "✓ Passwords match" : "✗ Passwords don't match"}
+              </div>
+            )}
           </div>
 
+          {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-              {error}
+            <div
+              style={{
+                background: "rgba(239, 68, 68, 0.1)",
+                border: "1px solid #EF4444",
+                color: "#FCA5A5",
+                padding: "12px 16px",
+                borderRadius: "8px",
+                fontSize: "14px",
+                display: "flex",
+                gap: "8px",
+              }}
+            >
+              <span>⚠️</span>
+              <span>{error}</span>
             </div>
           )}
 
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+            className="btn-primary"
+            style={{
+              width: "100%",
+              height: "48px",
+              fontSize: "16px",
+              marginTop: "8px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+            }}
           >
-            {loading ? "Creating account..." : "Sign Up"}
+            {loading ? (
+              <>
+                <span className="spinner" style={{ width: "16px", height: "16px" }} />
+                Creating account...
+              </>
+            ) : (
+              "Sign Up"
+            )}
           </button>
         </form>
 
-        <div className="text-center mt-6 text-sm text-gray-600">
+        {/* Footer */}
+        <div style={{ textAlign: "center", marginTop: "24px", fontSize: "14px", color: "var(--text-secondary)" }}>
           Already have an account?{" "}
           <Link
             to="/login"
-            className="text-blue-600 font-medium hover:text-blue-700"
+            style={{
+              color: "var(--primary)",
+              fontWeight: "600",
+              textDecoration: "none",
+              transition: "color 0.3s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "var(--secondary)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "var(--primary)";
+            }}
           >
             Log in
           </Link>

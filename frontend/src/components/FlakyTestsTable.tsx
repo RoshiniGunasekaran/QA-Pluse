@@ -19,13 +19,15 @@ const FlakyTestsTable: React.FC<Props> = ({ tests }) => {
 
   if (!tests || tests.length === 0) {
     return (
-      <div style={{ color: "#f0f0f0" }}>
-        <p style={{ color: "#999" }}>No flaky tests detected. All tests are stable! 🎉</p>
+      <div className="glass-card" style={{ padding: "24px" }}>
+        <h2 style={{ marginTop: 0 }}>🔄 Flaky Tests</h2>
+        <p style={{ color: "#10B981", fontSize: "16px", fontWeight: "600" }}>
+          ✓ No flaky tests detected. All tests are stable! 🎉
+        </p>
       </div>
     );
   }
 
-  // Sorting logic
   const sortedTests = [...tests].sort((a, b) => {
     const valA = a[sortKey];
     const valB = b[sortKey];
@@ -35,7 +37,6 @@ const FlakyTestsTable: React.FC<Props> = ({ tests }) => {
     return sortOrder === "asc" ? Number(valA) - Number(valB) : Number(valB) - Number(valA);
   });
 
-  // Handle header click for sorting
   const handleSort = (key: keyof FlakyTest) => {
     if (sortKey === key) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -46,70 +47,106 @@ const FlakyTestsTable: React.FC<Props> = ({ tests }) => {
   };
 
   return (
-    <div style={{ marginTop: "20px", color: "#f0f0f0" }}>
-      <h2>Flaky Tests (Tests that pass & fail)</h2>
+    <div className="glass-card" style={{ padding: "24px", marginTop: "24px" }}>
+      <h2 style={{ marginTop: 0 }}>🔄 Flaky Tests (Tests that pass & fail)</h2>
+
       <div style={{ overflowX: "auto" }}>
         <table
-          aria-label="Flaky Tests"
           style={{
             width: "100%",
             borderCollapse: "collapse",
-            background: "#1e1e1e",
-            borderRadius: "8px",
-            overflow: "hidden",
+            minWidth: "600px",
           }}
         >
           <thead>
-            <tr style={{ background: "#0a0a0a", borderBottom: "2px solid #333" }}>
+            <tr style={{ background: "rgba(255, 255, 255, 0.05)", borderBottom: "2px solid rgba(255, 255, 255, 0.1)" }}>
               <th
                 onClick={() => handleSort("test_name")}
                 style={{
-                  padding: "15px",
+                  padding: "16px",
                   textAlign: "left",
-                  fontWeight: "bold",
+                  fontWeight: "700",
                   cursor: "pointer",
+                  fontSize: "14px",
+                  color: "var(--text-secondary)",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "transparent";
                 }}
               >
-                Test Name {sortKey === "test_name" ? (sortOrder === "asc" ? "↑" : "↓") : ""}
+                Test Name {sortKey === "test_name" && (sortOrder === "asc" ? "↑" : "↓")}
               </th>
               <th
                 onClick={() => handleSort("pass_count")}
                 style={{
-                  padding: "15px",
+                  padding: "16px",
                   textAlign: "center",
-                  fontWeight: "bold",
+                  fontWeight: "700",
                   cursor: "pointer",
+                  fontSize: "14px",
+                  color: "var(--text-secondary)",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "transparent";
                 }}
               >
-                Passes {sortKey === "pass_count" ? (sortOrder === "asc" ? "↑" : "↓") : ""}
+                Passes {sortKey === "pass_count" && (sortOrder === "asc" ? "↑" : "↓")}
               </th>
               <th
                 onClick={() => handleSort("fail_count")}
                 style={{
-                  padding: "15px",
+                  padding: "16px",
                   textAlign: "center",
-                  fontWeight: "bold",
+                  fontWeight: "700",
                   cursor: "pointer",
+                  fontSize: "14px",
+                  color: "var(--text-secondary)",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "transparent";
                 }}
               >
-                Fails {sortKey === "fail_count" ? (sortOrder === "asc" ? "↑" : "↓") : ""}
+                Fails {sortKey === "fail_count" && (sortOrder === "asc" ? "↑" : "↓")}
               </th>
               <th
                 onClick={() => handleSort("skip_count")}
                 style={{
-                  padding: "15px",
+                  padding: "16px",
                   textAlign: "center",
-                  fontWeight: "bold",
+                  fontWeight: "700",
                   cursor: "pointer",
+                  fontSize: "14px",
+                  color: "var(--text-secondary)",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "transparent";
                 }}
               >
-                Skips {sortKey === "skip_count" ? (sortOrder === "asc" ? "↑" : "↓") : ""}
+                Skips {sortKey === "skip_count" && (sortOrder === "asc" ? "↑" : "↓")}
               </th>
               <th
                 style={{
-                  padding: "15px",
+                  padding: "16px",
                   textAlign: "center",
-                  fontWeight: "bold",
+                  fontWeight: "700",
+                  fontSize: "14px",
+                  color: "var(--text-secondary)",
                 }}
               >
                 Stability %
@@ -119,35 +156,34 @@ const FlakyTestsTable: React.FC<Props> = ({ tests }) => {
           <tbody>
             {sortedTests.map((test, idx) => {
               const stability = (test.pass_count / test.total_runs_appeared_in) * 100;
-              const stabilityColor =
-                stability > 70 ? "#00C49F" : stability > 40 ? "#FFBB28" : "#FF6B6B";
+              const stabilityColor = stability > 70 ? "#10B981" : stability > 40 ? "#F59E0B" : "#EF4444";
 
               return (
                 <tr
                   key={idx}
                   style={{
-                    borderBottom: "1px solid #333",
-                    background: idx % 2 === 0 ? "#1e1e1e" : "#252525",
+                    background: idx % 2 === 0 ? "rgba(255, 255, 255, 0.02)" : "transparent",
+                    borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+                    transition: "all 0.3s ease",
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = idx % 2 === 0 ? "rgba(255, 255, 255, 0.02)" : "transparent";
                   }}
                 >
-                  <td style={{ padding: "15px", textAlign: "left" }}>
-                    {test.test_name}
-                  </td>
-                  <td style={{ padding: "15px", textAlign: "center", color: "#00C49F" }}>
-                    {test.pass_count}
-                  </td>
-                  <td style={{ padding: "15px", textAlign: "center", color: "#FF6B6B" }}>
-                    {test.fail_count}
-                  </td>
-                  <td style={{ padding: "15px", textAlign: "center", color: "#FFBB28" }}>
-                    {test.skip_count}
-                  </td>
+                  <td style={{ padding: "16px", fontWeight: "600" }}>{test.test_name}</td>
+                  <td style={{ padding: "16px", textAlign: "center", color: "#10B981" }}>{test.pass_count}</td>
+                  <td style={{ padding: "16px", textAlign: "center", color: "#EF4444" }}>{test.fail_count}</td>
+                  <td style={{ padding: "16px", textAlign: "center", color: "#F59E0B" }}>{test.skip_count}</td>
                   <td
                     style={{
-                      padding: "15px",
+                      padding: "16px",
                       textAlign: "center",
                       color: stabilityColor,
-                      fontWeight: "bold",
+                      fontWeight: "700",
                     }}
                   >
                     {stability.toFixed(1)}%
@@ -162,4 +198,4 @@ const FlakyTestsTable: React.FC<Props> = ({ tests }) => {
   );
 };
 
-export default FlakyTestsTable;
+export default React.memo(FlakyTestsTable);

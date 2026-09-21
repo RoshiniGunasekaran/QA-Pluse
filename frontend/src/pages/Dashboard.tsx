@@ -1,20 +1,8 @@
 // frontend/src/pages/Dashboard.tsx
 import React, { useEffect, useState } from "react";
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import StatisticsCard from "../components/StatisticsCard";
+import Charts from "../components/Charts";
+import ModuleRiskAnalysis from "../components/ModuleRiskAnalysis";
 
 // ---------- Types ----------
 interface Summary {
@@ -68,6 +56,7 @@ interface ChartData {
     pass_rate: number;
     timestamp: string;
   }[];
+
   test_count_trend: {
     run_number: number;
     total: number;
@@ -75,6 +64,7 @@ interface ChartData {
     failed: number;
     skipped: number;
   }[];
+
   failure_distribution: {
     framework: string;
     failure_count: number;
@@ -82,239 +72,162 @@ interface ChartData {
   }[];
 }
 
-// ---------- Child Components ----------
-const StatisticsCard: React.FC<{
-  label: string;
-  value: number;
-  percentage?: number;
-}> = ({ label, value, percentage }) => (
-  <div className="card">
-    <h3>{label}</h3>
-    <p>{value}</p>
-    {percentage !== undefined && <p>{percentage}%</p>}
-  </div>
-);
+// ---------- Components ----------
 
 const ReleaseHealthCard: React.FC<{
   health: number;
   status: string;
 }> = ({ health, status }) => {
-  const color =
-    status === "HEALTHY"
-      ? "green"
-      : status === "WARNING"
-        ? "yellow"
-        : "red";
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "HEALTHY":
+        return "#10B981";
+
+      case "WARNING":
+        return "#F59E0B";
+
+      case "CRITICAL":
+        return "#EF4444";
+
+      default:
+        return "#94A3B8";
+    }
+  };
+
+  const statusColor = getStatusColor(status);
 
   return (
-    <div className="card">
-      <h3>Release Health</h3>
-      <p style={{ color }}>
-        {health}% ({status})
+    <div
+      className="glass-card"
+      style={{
+        padding: "24px",
+        background: `rgba(${
+          status === "HEALTHY"
+            ? "16, 185, 129"
+            : status === "WARNING"
+            ? "245, 158, 11"
+            : "239, 68, 68"
+        }, 0.1)`,
+        borderLeft: `4px solid ${statusColor}`,
+      }}
+    >
+      <h3
+        style={{
+          marginTop: 0,
+          marginBottom: "16px",
+        }}
+      >
+        🎯 Release Health
+      </h3>
+
+      <div
+        style={{
+          fontSize: "36px",
+          fontWeight: "700",
+          color: statusColor,
+          marginBottom: "8px",
+        }}
+      >
+        {health.toFixed(1)}%
+      </div>
+
+      <p
+        style={{
+          margin: 0,
+          color: statusColor,
+          fontWeight: "600",
+        }}
+      >
+        {status}
       </p>
     </div>
   );
 };
 
-const Charts: React.FC<{ data: ChartData | null }> = ({ data }) => {
-  if (!data) return <p>No chart data available</p>;
-
-  const COLORS = [
-    "#0088FE",
-    "#00C49F",
-    "#FFBB28",
-    "#FF8042",
-    "#FF6B6B",
-  ];
-
-  return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
-        gap: "20px",
-        marginTop: "20px",
-      }}
-    >
-      {/* Line Chart: Pass Rate Trend */}
-      <div
-        style={{
-          background: "#1e1e1e",
-          padding: "20px",
-          borderRadius: "8px",
-          border: "1px solid #333",
-        }}
-      >
-        <h3 style={{ marginTop: 0 }}>📈 Pass Rate Trend</h3>
-
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data.pass_rate_trend}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-            <XAxis dataKey="run_number" stroke="#999" />
-            <YAxis stroke="#999" domain={[0, 100]} />
-
-            <Tooltip
-              contentStyle={{
-                background: "#333",
-                border: "1px solid #666",
-                color: "#fff",
-              }}
-            />
-
-            <Legend />
-
-            <Line
-              type="monotone"
-              dataKey="pass_rate"
-              stroke="#00C49F"
-              name="Pass Rate (%)"
-              strokeWidth={2}
-              dot={{ fill: "#00C49F", r: 5 }}
-              activeDot={{ r: 7 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Bar Chart: Test Count Trend */}
-      <div
-        style={{
-          background: "#1e1e1e",
-          padding: "20px",
-          borderRadius: "8px",
-          border: "1px solid #333",
-        }}
-      >
-        <h3 style={{ marginTop: 0 }}>📊 Test Count Trend</h3>
-
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data.test_count_trend}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-            <XAxis dataKey="run_number" stroke="#999" />
-            <YAxis stroke="#999" />
-
-            <Tooltip
-              contentStyle={{
-                background: "#333",
-                border: "1px solid #666",
-                color: "#fff",
-              }}
-            />
-
-            <Legend />
-
-            <Bar
-              dataKey="passed"
-              stackId="a"
-              fill="#00C49F"
-              name="Passed"
-            />
-
-            <Bar
-              dataKey="failed"
-              stackId="a"
-              fill="#FF6B6B"
-              name="Failed"
-            />
-
-            <Bar
-              dataKey="skipped"
-              stackId="a"
-              fill="#FFBB28"
-              name="Skipped"
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Pie Chart: Failure Distribution */}
-      <div
-        style={{
-          background: "#1e1e1e",
-          padding: "20px",
-          borderRadius: "8px",
-          border: "1px solid #333",
-        }}
-      >
-        <h3 style={{ marginTop: 0 }}>🥧 Failure Distribution</h3>
-
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={data.failure_distribution}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={(props) =>
-                `${props.payload.framework}: ${props.payload.percentage}%`
-              }
-              outerRadius={80}
-              fill="#8884d8"
-              dataKey="failure_count"
-            >
-              {data.failure_distribution.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
-                />
-              ))}
-            </Pie>
-
-            <Tooltip
-              contentStyle={{
-                background: "#333",
-                border: "1px solid #666",
-                color: "#fff",
-              }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
-  );
-};
-
-const ModuleRiskAnalysis: React.FC<{ modules: ModuleRisk[] }> = ({
-  modules,
-}) => (
-  <div>
-    <h3>Module Risk Analysis</h3>
-
-    {modules.length === 0 ? (
-      <p>No modules available</p>
-    ) : (
-      <ul>
-        {modules.map((m) => (
-          <li key={m.module}>
-            {m.module}: {m.risk_level} risk ({m.failed_tests} fails,{" "}
-            {m.pass_rate}% pass rate)
-          </li>
-        ))}
-      </ul>
-    )}
-  </div>
-);
-
-const RecentRunsList: React.FC<{ runs: RecentRun[] }> = ({ runs }) => (
-  <div>
-    <h3>Recent Runs</h3>
+const RecentRunsList: React.FC<{
+  runs: RecentRun[];
+}> = ({ runs }) => (
+  <div
+    className="glass-card"
+    style={{
+      padding: "24px",
+      marginTop: "24px",
+    }}
+  >
+    <h2 style={{ marginTop: 0 }}>
+      Recent Test Runs
+    </h2>
 
     {runs.length === 0 ? (
-      <p>No recent runs</p>
+      <p
+        style={{
+          color: "var(--text-secondary)",
+        }}
+      >
+        No recent runs available
+      </p>
     ) : (
-      <ul>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns:
+            "repeat(auto-fit, minmax(250px, 1fr))",
+          gap: "16px",
+        }}
+      >
         {runs.map((r) => (
-          <li key={r.id}>
-            Run {r.run_number}: {r.pass_rate}% pass rate (
-            {r.passed_tests}/{r.total_tests})
-          </li>
+          <div
+            key={r.id}
+            style={{
+              background:
+                "rgba(255, 255, 255, 0.05)",
+              padding: "16px",
+              borderRadius: "8px",
+            }}
+          >
+            <p
+              style={{
+                margin: "0 0 8px 0",
+                fontWeight: "600",
+              }}
+            >
+              Run #{r.run_number}
+            </p>
+
+            <p
+              style={{
+                margin: "0 0 8px 0",
+                fontSize: "14px",
+                color: "var(--text-secondary)",
+              }}
+            >
+              📋 {r.passed_tests}/{r.total_tests} passed
+            </p>
+
+            <p
+              style={{
+                margin: 0,
+                fontSize: "18px",
+                fontWeight: "700",
+                color:
+                  r.pass_rate > 70
+                    ? "#10B981"
+                    : r.pass_rate > 40
+                    ? "#F59E0B"
+                    : "#EF4444",
+              }}
+            >
+              {r.pass_rate.toFixed(1)}%
+            </p>
+          </div>
         ))}
-      </ul>
+      </div>
     )}
   </div>
 );
 
 // ---------- Main Dashboard ----------
+
 interface DashboardProps {
   projectId?: number;
   orgId?: number | null;
@@ -324,18 +237,26 @@ const Dashboard: React.FC<DashboardProps> = ({
   projectId = 3,
   orgId = null,
 }) => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] =
+    useState(true);
 
-  const [summary, setSummary] = useState<Summary | null>(null);
-  const [trends, setTrends] = useState<Trend[]>([]);
-  const [modules, setModules] = useState<ModuleRisk[]>([]);
-  const [recentRuns, setRecentRuns] = useState<RecentRun[]>([]);
-  const [chartData, setChartData] = useState<ChartData | null>(null);
+  const [error, setError] =
+    useState<string | null>(null);
+
+  const [summary, setSummary] =
+    useState<Summary | null>(null);
+
+  const [modules, setModules] =
+    useState<ModuleRisk[]>([]);
+
+  const [recentRuns, setRecentRuns] =
+    useState<RecentRun[]>([]);
+
+  const [chartData, setChartData] =
+    useState<ChartData | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      // Wait until an organization is selected.
       if (orgId === null) {
         setLoading(false);
         return;
@@ -345,10 +266,13 @@ const Dashboard: React.FC<DashboardProps> = ({
       setError(null);
 
       try {
-        const token = localStorage.getItem("token");
+        const token =
+          localStorage.getItem("token");
 
         if (!token) {
-          throw new Error("Authentication token not found");
+          throw new Error(
+            "Authentication token not found"
+          );
         }
 
         const headers = {
@@ -357,18 +281,12 @@ const Dashboard: React.FC<DashboardProps> = ({
 
         const [
           summaryRes,
-          trendsRes,
           modulesRes,
           recentRes,
           chartsRes,
         ] = await Promise.all([
           fetch(
             `http://localhost:5000/api/dashboard/summary?projectId=${projectId}`,
-            { headers }
-          ),
-
-          fetch(
-            `http://localhost:5000/api/dashboard/trends?projectId=${projectId}&limit=10`,
             { headers }
           ),
 
@@ -388,44 +306,51 @@ const Dashboard: React.FC<DashboardProps> = ({
           ),
         ]);
 
-        // Handle expired/invalid JWT
         if (
           summaryRes.status === 401 ||
-          trendsRes.status === 401 ||
           modulesRes.status === 401 ||
           recentRes.status === 401 ||
           chartsRes.status === 401
         ) {
           localStorage.removeItem("token");
-          localStorage.removeItem("selectedOrgId");
           window.location.href = "/login";
           return;
         }
 
         if (
           !summaryRes.ok ||
-          !trendsRes.ok ||
           !modulesRes.ok ||
           !recentRes.ok ||
           !chartsRes.ok
         ) {
-          throw new Error("One or more API calls failed");
+          throw new Error(
+            "One or more API calls failed"
+          );
         }
 
-        const summaryJson = await summaryRes.json();
-        const trendsJson = await trendsRes.json();
-        const modulesJson = await modulesRes.json();
-        const recentJson = await recentRes.json();
-        const chartsJson = await chartsRes.json();
+        const summaryJson =
+          await summaryRes.json();
+
+        const modulesJson =
+          await modulesRes.json();
+
+        const recentJson =
+          await recentRes.json();
+
+        const chartsJson =
+          await chartsRes.json();
 
         setSummary(summaryJson.data);
-        setTrends(trendsJson.data);
         setModules(modulesJson.data);
         setRecentRuns(recentJson.data);
         setChartData(chartsJson.data);
       } catch (err: any) {
         console.error(err);
-        setError(err.message || "Unknown error occurred");
+
+        setError(
+          err.message ||
+            "Unknown error occurred"
+        );
       } finally {
         setLoading(false);
       }
@@ -434,122 +359,224 @@ const Dashboard: React.FC<DashboardProps> = ({
     fetchData();
   }, [projectId, orgId]);
 
+  // ---------- Loading ----------
   if (loading) {
     return (
-      <div className="dashboard">
+      <div
+        style={{
+          textAlign: "center",
+          padding: "40px",
+          color: "var(--text-secondary)",
+        }}
+      >
+        <div
+          className="spinner"
+          style={{
+            display: "inline-block",
+            marginBottom: "16px",
+          }}
+        />
+
         <p>Loading dashboard...</p>
       </div>
     );
   }
 
+  // ---------- Organization not selected ----------
   if (orgId === null) {
     return (
-      <div className="dashboard">
-        <p>Please select an organization to view the dashboard.</p>
+      <div
+        className="glass-card"
+        style={{
+          padding: "24px",
+          textAlign: "center",
+        }}
+      >
+        <p
+          style={{
+            color: "var(--text-secondary)",
+          }}
+        >
+          Please select an organization to
+          view the dashboard.
+        </p>
       </div>
     );
   }
 
+  // ---------- Error ----------
   if (error) {
     return (
-      <div className="dashboard">
-        <p style={{ color: "red" }}>Error: {error}</p>
+      <div
+        className="glass-card"
+        style={{
+          padding: "24px",
+        }}
+      >
+        <p
+          style={{
+            color: "#EF4444",
+            marginBottom: "16px",
+          }}
+        >
+          ⚠️ Error: {error}
+        </p>
 
-        <button onClick={() => window.location.reload()}>
+        <button
+          onClick={() =>
+            window.location.reload()
+          }
+          className="btn-primary"
+          style={{
+            marginTop: "12px",
+          }}
+        >
           Retry
         </button>
       </div>
     );
   }
 
+  // ---------- No summary ----------
   if (!summary) {
     return (
-      <div className="dashboard">
-        <p>No data available</p>
+      <div
+        className="glass-card"
+        style={{
+          padding: "24px",
+          textAlign: "center",
+        }}
+      >
+        <p
+          style={{
+            color: "var(--text-secondary)",
+          }}
+        >
+          No data available
+        </p>
       </div>
     );
   }
 
+  // ---------- Dashboard ----------
   return (
-    <div
-      className="dashboard"
-      style={{
-        background: "#121212",
-        color: "#f0f0f0",
-        maxWidth: "1400px",
-        margin: "0 auto",
-        padding: "20px",
-      }}
-    >
-      <header>
-        <h1>QA Pulse Dashboard</h1>
+    <div>
+      {/* Header */}
+      <header
+        style={{
+          marginBottom: "30px",
+        }}
+      >
+        <h1
+          style={{
+            marginBottom: "8px",
+          }}
+        >
+          📊 QA Pulse Dashboard
+        </h1>
 
-        <p>Organization ID: {orgId}</p>
-        <p>Project ID: {projectId}</p>
+        <p
+          style={{
+            color: "var(--text-secondary)",
+            fontSize: "14px",
+          }}
+        >
+          Org: {orgId} • Project: {projectId}
+        </p>
       </header>
 
-      <section
-        className="statistics"
+      {/* Statistics Cards */}
+      <div
         style={{
-          display: "flex",
+          display: "grid",
+          gridTemplateColumns:
+            "repeat(auto-fit, minmax(200px, 1fr))",
           gap: "20px",
-          flexWrap: "wrap",
+          marginBottom: "30px",
         }}
       >
         <StatisticsCard
           label="Total Tests"
           value={summary.total_tests}
+          icon="📋"
+          color="blue"
         />
 
         <StatisticsCard
-          label="Passed"
+          label="✅ Passed"
           value={summary.passed_tests}
-          percentage={summary.passed_percentage}
+          percentage={
+            summary.passed_percentage
+          }
+          icon="✓"
+          color="green"
         />
 
         <StatisticsCard
-          label="Failed"
+          label="❌ Failed"
           value={summary.failed_tests}
-          percentage={summary.failed_percentage}
+          percentage={
+            summary.failed_percentage
+          }
+          icon="✗"
+          color="red"
         />
 
         <StatisticsCard
-          label="Skipped"
+          label="⏭️ Skipped"
           value={summary.skipped_tests}
-          percentage={summary.skipped_percentage}
+          percentage={
+            summary.skipped_percentage
+          }
+          icon="→"
+          color="yellow"
         />
-      </section>
+      </div>
 
-      <section
-        className="release-health"
-        style={{ marginTop: "20px" }}
+      {/* Release Health */}
+      <div
+        style={{
+          marginBottom: "30px",
+        }}
       >
         <ReleaseHealthCard
           health={summary.release_health}
           status={summary.release_status}
         />
-      </section>
+      </div>
 
-      <section
-        className="charts"
-        style={{ marginTop: "20px" }}
-      >
+      {/* Charts */}
+      {chartData ? (
         <Charts data={chartData} />
-      </section>
+      ) : (
+        <div
+          className="glass-card"
+          style={{
+            padding: "24px",
+            textAlign: "center",
+            marginBottom: "24px",
+          }}
+        >
+          <p
+            style={{
+              color:
+                "var(--text-secondary)",
+            }}
+          >
+            No chart data available
+          </p>
+        </div>
+      )}
 
-      <section
-        className="module-risk"
-        style={{ marginTop: "20px" }}
-      >
-        <ModuleRiskAnalysis modules={modules} />
-      </section>
+      {/* Module Risk Analysis */}
+      <ModuleRiskAnalysis
+        modules={modules}
+      />
 
-      <section
-        className="recent-runs"
-        style={{ marginTop: "20px" }}
-      >
-        <RecentRunsList runs={recentRuns} />
-      </section>
+      {/* Recent Runs */}
+      <RecentRunsList
+        runs={recentRuns}
+      />
     </div>
   );
 };
