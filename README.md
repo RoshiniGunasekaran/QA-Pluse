@@ -1,1085 +1,1126 @@
-# QA Pulse - Quality Intelligence Platform
+# QA Pulse - SaaS QA Intelligence Platform
 
-## Overview
-QA Pulse is a SaaS-style dashboard that collects automated test results, analyzes quality metrics, and calculates release risk.
+![QA Pulse](https://img.shields.io/badge/QA%20Pulse-v1.0.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Node.js](https://img.shields.io/badge/node-v24%2B-brightgreen)
+![Docker](https://img.shields.io/badge/docker-v27%2B-blue)
 
-## Setup
-- Frontend: React + TypeScript + Vite
-- Backend: Node.js + Express + TypeScript
-- Database: PostgreSQL (via Docker)
+## 📊 Project Overview
 
-## Status
-Week 1 Sprint - Day 1: Project Setup
-# QA PULSE — Day 1 Complete Setup Guide
+QA Pulse is a modern SaaS platform that intelligently analyzes test results, detects flaky tests, calculates release risk scores, and provides actionable insights to QA teams. It integrates with GitHub to correlate code changes with test failures and sends real-time Slack notifications, enabling teams to ship quality software faster and with confidence.
 
-## 📋 Overview
+**Key Benefits:**
+- 🎯 Identify risky tests before they reach production
+- 🔍 Detect flaky tests automatically
+- 📊 Visualize test trends and patterns
+- 🔗 Correlate commits with test failures
+- 🚀 Make data-driven release decisions
+- 💬 Get real-time Slack alerts
 
-**Day 1 Goal:** Build a complete local full-stack development environment for QA Pulse.
-
-**What You'll Have:**
-- ✅ Backend API (Node.js + Express)
-- ✅ Frontend UI (React + TypeScript)
-- ✅ PostgreSQL Database (Docker)
-- ✅ All 3 services connected and verified
-
-**Time Required:** 6-8 hours
-
-**Final Result:** 3 terminals running, both status indicators 🟢 Green
+**Target Users:** QA teams, DevOps engineers, test automation specialists, and release managers building high-quality software.
 
 ---
 
-## 🎯 Day 1 Deliverables
+## ✨ Features
 
-| Component | Technology | Status | Port |
-|-----------|-----------|--------|------|
-| Backend | Node.js + Express + TypeScript | Running | 5000 |
-| Frontend | React + Vite + TypeScript | Running | 3000 |
-| Database | PostgreSQL 15 | Running (Docker) | 5432 |
-| CORS | Enabled | ✅ | - |
+### 🔐 User Authentication
+- User signup with email validation
+- Secure login with JWT tokens
+- Profile management
+- Password hashing with bcryptjs
+
+### 🏢 Multi-Tenant Organizations
+- Create and manage organizations
+- Invite team members
+- Role-based access control (owner, member, viewer)
+- Organization-scoped projects and data
+
+### 📤 Test Result Ingestion
+- JUnit XML format support
+- Postman JSON format support
+- Batch test result processing
+- Automatic test statistics calculation
+
+### ⚠️ Risk Analysis & Flaky Test Detection
+- Automatic flaky test detection (tests that pass & fail)
+- Risk scoring system (0-100)
+- Risk levels: LOW, MEDIUM, HIGH
+- Module-level risk analysis
+- Stability percentage tracking
+
+### 🔗 GitHub Integration
+- Sync commits from GitHub repository
+- Correlate commits with test runs
+- Track code changes and files affected
+- PR tracking and analysis
+- Risk correlation: identify which commits cause failures
+
+### 💬 Slack Notifications
+- Configure Slack webhook URLs
+- Automatic alerts on test failures
+- Risk level notifications
+- Real-time team communication
+
+### 📊 Responsive Dashboard
+- Test statistics and pass rate trends
+- Line charts for pass rate over time
+- Bar charts for test count distribution
+- Pie charts for failure distribution
+- Module risk analysis table
+- Recent test runs display
+- Release health status indicator
+
+### 🎨 Modern UI
+- Glassmorphism design system
+- Mobile-first responsive layout
+- Smooth animations and transitions
+- Dark theme optimized for long viewing
+- Touch-friendly interface
+- Professional SaaS styling
 
 ---
 
-## 📁 Final Folder Structure
+## 🛠️ Tech Stack
 
-```
-qa-pulse/
-├── backend/
-│   ├── src/
-│   │   ├── server.ts              (Main Express server)
-│   │   ├── routes/
-│   │   │   └── health.ts          (GET /health endpoint)
-│   │   └── types/
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── vite.config.ts
-│   ├── .env
-│   └── docker.env
-│
-├── frontend/
-│   ├── src/
-│   │   ├── main.tsx               (React entry point)
-│   │   ├── App.tsx                (Main component)
-│   │   ├── App.css
-│   │   └── index.css              (Global styles)
-│   ├── index.html
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── vite.config.ts
-│   └── .env
-│
-├── database/
-│   └── init.sql                   (PostgreSQL schema)
-│
-├── test-data/                     (Empty for now)
-├── docs/                          (Empty for now)
-│
-├── docker-compose.yml             (Only PostgreSQL service)
-├── .gitignore
-└── README.md
+### Frontend
+- **Framework:** React 18 with Hooks
+- **Build Tool:** Vite
+- **Language:** TypeScript
+- **Charting:** Recharts
+- **Styling:** Tailwind CSS + Custom CSS
+- **HTTP:** Fetch API
 
-```
+### Backend
+- **Runtime:** Node.js v24+
+- **Framework:** Express.js
+- **Language:** TypeScript
+- **Database:** PostgreSQL
+- **Authentication:** JWT (jsonwebtoken)
+- **Password Hashing:** bcryptjs
+- **XML Parsing:** xml2js
+
+### DevOps & Infrastructure
+- **Containerization:** Docker
+- **Orchestration:** Docker Compose
+- **Database:** PostgreSQL (containerized)
+
+### External Integrations
+- **GitHub API:** Commit syncing and analysis
+- **Slack API:** Webhook notifications
 
 ---
 
-## 🚀 Complete Setup Steps
+## 🚀 Quick Start
 
-### STEP 1: Environment Check
+### Prerequisites
 
-**Run these commands to verify your machine:**
+Before you begin, ensure you have the following installed:
+
+- **Node.js** v24 or higher ([download](https://nodejs.org/))
+- **Docker** v27 or higher ([download](https://www.docker.com/))
+- **Docker Compose** (included with Docker Desktop)
+- **Git**
+- **GitHub account** (for integration features)
+
+### Installation Steps
+
+#### 1. Clone the Repository
 
 ```bash
-node --version          # Should be v18+ (we used v24.18.0)
-npm --version           # Should be v10+ (we used v10.9.2)
-docker --version        # Should be installed (we used v27.2.0)
-psql --version          # Optional (not needed - DB runs in Docker)
-```
-
-**Expected Output:**
-```
-v24.18.0
-10.9.2
-Docker version 27.2.0, build 3ab4256
-(psql not installed - OK, not needed)
-```
-
----
-
-### STEP 2: Project Initialization
-
-**Create project structure:**
-
-```bash
-# Create main folder
-mkdir qa-pulse
+git clone https://github.com/RoshiniGunasekaran/QA-Pulse.git
 cd qa-pulse
-
-# Initialize Git
-git init
-git config user.name "Your Name"
-git config user.email "your.email@example.com"
-
-# Create folders
-mkdir frontend backend database test-data docs
-
-# Create .gitignore
-# Content:
-# node_modules/
-# dist/
-# .env
-# .env.local
-# *.log
-# .DS_Store
-
-# Create README.md with project description
 ```
 
----
+#### 2. Setup Database
 
-### STEP 3: Backend Setup
+```bash
+# Start PostgreSQL in Docker
+docker-compose up -d
 
-**Folder:** `backend/`
+# Wait 10 seconds for PostgreSQL to initialize
+# Database will be created automatically
+```
 
-**What We Built:**
-- Express.js server listening on port 5000
-- TypeScript configuration for type safety
-- Health check endpoint at GET `/health`
-- CORS middleware for frontend communication
-- npm scripts for development and production
-
-**Key Files Created:**
-
-| File | Purpose |
-|------|---------|
-| `src/server.ts` | Main Express server setup |
-| `src/routes/health.ts` | Health check endpoint |
-| `package.json` | Dependencies + scripts |
-| `tsconfig.json` | TypeScript configuration |
-| `vite.config.ts` | Vite dev server config |
-| `.env` | Environment variables (dev) |
-
-**Commands Run:**
+#### 3. Setup Backend
 
 ```bash
 cd backend
 
-# Initialize Node project
-npm init -y
-
 # Install dependencies
-npm install express cors dotenv
+npm install
 
-# Install dev dependencies
-npm install --save-dev typescript ts-node @types/express @types/node nodemon
+# Create .env file
+echo "NODE_ENV=development
+PORT=5000
+GITHUB_TOKEN=your_github_token_here
+GITHUB_REPO=RoshiniGunasekaran/QA-Pulse
+JWT_SECRET=your_super_secret_jwt_key_here" > .env
 
-# Start in development
-npm run dev        # Runs: nodemon --watch src --exec ts-node src/server.ts
+# Start backend server
+npm run dev
+
+# Backend will run on http://localhost:5000
 ```
 
-**Expected Server Output:**
-```
-[nodemon] watching path(s): src/**/*
-[nodemon] watching extensions: ts,json
-[nodemon] starting `ts-node src/server.ts`
-🚀 Server running on http://localhost:5000
-```
-
-**Test Backend:**
-```bash
-curl http://localhost:5000/health
-# Response: {"status":"ok","message":"Server is healthy 🚀"}
-```
-
----
-
-### STEP 4: Database Setup
-
-**Folder:** `database/`
-
-**What We Built:**
-- PostgreSQL initialization script
-- 6 database tables for QA Pulse
-- Foreign key relationships
-- Proper indexes for performance
-
-**Tables Created:**
-
-| Table | Purpose | Key Fields |
-|-------|---------|-----------|
-| `users` | User accounts | id, email, password_hash, name |
-| `organizations` | Company/team | id, name, owner_id |
-| `org_members` | Org membership | id, org_id, user_id, role |
-| `projects` | Projects within org | id, org_id, name |
-| `test_runs` | Test execution batches | id, project_id, total/passed/failed |
-| `test_results` | Individual test results | id, test_run_id, test_name, status |
-
-**File Created:**
-```
-database/init.sql
-```
-
-**Verify Database:**
-```bash
-docker exec qa_pulse_db psql -U dev -d qa_pulse -c "\dt"
-
-# Shows all tables
-# Expected: 6 relations (users, organizations, org_members, projects, test_runs, test_results)
-```
-
----
-
-### STEP 5: Docker Setup
-
-**File:** `docker-compose.yml`
-
-**What We Configured:**
-
-```yaml
-Services:
-  - db (PostgreSQL 15)
-    - Port: 5432
-    - User: dev
-    - Password: devpass
-    - Database: qa_pulse
-    - Volume: ./database/init.sql (auto-run on startup)
-```
-
-**Why Docker?**
-- No PostgreSQL installation needed on Windows
-- Easy to reset/restart database
-- Production-like setup
-- Portable across machines
-
-**Commands:**
-
-```bash
-cd qa-pulse
-
-# Start PostgreSQL in Docker
-docker-compose up          # Foreground (see logs)
-docker-compose up -d       # Background (detached mode)
-
-# Stop services
-docker-compose down        # Removes containers
-
-# Verify running
-docker ps                  # Lists all running containers
-```
-
-**Expected Output:**
-```
-CONTAINER ID   IMAGE           PORTS
-abc123         postgres:15     5432->5432
-```
-
----
-
-### STEP 6: Frontend Setup
-
-**Folder:** `frontend/`
-
-**What We Built:**
-- React 18 with TypeScript
-- Vite for fast development
-- Status dashboard showing backend + database connection
-- Dark mode UI with cyan accent color
-- Automatic health check on component mount
-
-**Key Files Created:**
-
-| File | Purpose |
-|------|---------|
-| `src/main.tsx` | React entry point |
-| `src/App.tsx` | Main component with status checks |
-| `src/index.css` | Global styles |
-| `index.html` | HTML entry point |
-| `package.json` | Dependencies + scripts |
-| `tsconfig.json` | TypeScript configuration |
-| `vite.config.ts` | Vite configuration |
-| `.env` | API URL configuration |
-
-**Commands Run:**
+#### 4. Setup Frontend (in new terminal)
 
 ```bash
 cd frontend
 
-# Initialize with npm
-npm init -y
-
 # Install dependencies
-npm install react react-dom vite @vitejs/plugin-react
+npm install
 
-# Install dev dependencies
-npm install --save-dev typescript @types/react @types/react-dom @types/node
+# Create .env file
+echo "VITE_API_URL=http://localhost:5000" > .env
 
-# Start dev server
-npm run dev         # Runs on http://localhost:3000 (auto-opens browser)
+# Start frontend
+npm run dev
+
+# Frontend will run on http://localhost:3000
 ```
 
-**Frontend Features:**
-- Displays "QA Pulse" heading + tagline
-- Shows Backend Status indicator (🟢 Green if connected)
-- Shows Database Status indicator (🟢 Green if available)
-- Calls GET `/health` endpoint on mount
-- Uses useState + useEffect for status tracking
-- Responsive dark theme
+#### 5. Access the Application
+
+Open your browser and navigate to:
+
+http://localhost:3000
+
+
+### Verify Installation
+
+- ✅ Frontend loads (http://localhost:3000)
+- ✅ Backend responds (http://localhost:5000/health)
+- ✅ Can create account
+- ✅ Can login successfully
+- ✅ Dashboard displays
 
 ---
 
-### STEP 7: CORS Configuration
+## 🔑 Environment Variables
 
-**Problem:** Frontend (localhost:3000) couldn't call Backend (localhost:5000)
+### Backend Configuration
 
-**Solution:** Added CORS middleware to Express
+Create `backend/.env`:
 
-**What Changed in `backend/src/server.ts`:**
+```env
+# Server Configuration
+NODE_ENV=development
+PORT=5000
 
-```typescript
-import cors from 'cors';
+# Database (Docker handles this automatically)
+DATABASE_USER=dev
+DATABASE_PASSWORD=devpass
+DATABASE_NAME=qa_pulse
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
 
-// After creating Express app
-app.use(cors({
-  origin: 'http://localhost:3000',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+# Authentication
+JWT_SECRET=your_super_secret_jwt_key_min_32_characters
 
-// Then mount routes
-app.use('/api', apiRoutes);
+# GitHub Integration
+GITHUB_TOKEN=ghp_your_github_personal_access_token
+GITHUB_REPO=RoshiniGunasekaran/QA-Pulse
+
+# CORS
+CORS_ORIGIN=http://localhost:3000
 ```
 
-**Why CORS was needed:**
-- Browsers block cross-origin requests by default
-- Frontend runs on port 3000, Backend on port 5000 = different origins
-- CORS middleware explicitly allows frontend to call backend
+### Frontend Configuration
 
-**Verification:**
+Create `frontend/.env`:
+
+```env
+# API Configuration
+VITE_API_URL=http://localhost:5000
+
+# Optional: Analytics
+VITE_ENABLE_ANALYTICS=false
+```
+
+### Getting GitHub Token
+
+1. Go to [GitHub Settings → Personal Access Tokens](https://github.com/settings/tokens)
+2. Click "Generate new token (classic)"
+3. Give it a name: `qa-pulse-dev`
+4. Select scopes: `repo` (read-only)
+5. Generate and copy the token
+6. Paste into `.env` as `GITHUB_TOKEN`
+
+---
+
+## 📡 API Endpoints
+
+### Authentication Endpoints
+
+POST /api/auth/signup
+Body: { email, name, password }
+Response: { token, userId, name }
+
+POST /api/auth/login
+Body: { email, password }
+Response: { token, userId, name }
+
+GET /api/auth/profile
+Headers: Authorization: Bearer <token>
+Response: { id, email, name }
+
+
+### Organization Endpoints
+
+GET /api/orgs
+Headers: Authorization: Bearer <token>
+Response: [{ id, name, owner_id }, ...]
+
+POST /api/orgs
+Headers: Authorization: Bearer <token>
+Body: { name }
+Response: { id, name }
+
+GET /api/orgs/:orgId
+Headers: Authorization: Bearer <token>
+Response: { id, name, owner_id }
+
+GET /api/orgs/:orgId/members
+Headers: Authorization: Bearer <token>
+Response: [{ userId, name, email, role }, ...]
+
+POST /api/orgs/:orgId/members
+Headers: Authorization: Bearer <token>
+Body: { email, role }
+Response: { success: true }
+
+
+### Test Results Endpoints
+
+POST /api/test-runs
+Headers: Authorization: Bearer <token>
+Body: { projectId, runNumber, totalTests, passedTests, ... }
+Response: { id, projectId, runNumber }
+
+POST /api/test-results
+Headers: Authorization: Bearer <token>
+Body: [{ testName, status, duration, module, ... }, ...]
+Response: { success: true, inserted: 20 }
+
+
+### Dashboard Endpoints
+
+GET /api/dashboard/summary?projectId=3
+Headers: Authorization: Bearer <token>
+Response: { total_tests, passed_tests, release_health, ... }
+
+GET /api/dashboard/trends?projectId=3&limit=10
+Headers: Authorization: Bearer <token>
+Response: [{ run_number, pass_rate, created_at }, ...]
+
+GET /api/dashboard/modules?projectId=3
+Headers: Authorization: Bearer <token>
+Response: [{ module, total_tests, risk_level, ... }, ...]
+
+GET /api/dashboard/recent-runs?projectId=3&limit=5
+Headers: Authorization: Bearer <token>
+Response: [{ id, run_number, pass_rate, ... }, ...]
+
+GET /api/dashboard/charts?projectId=3
+Headers: Authorization: Bearer <token>
+Response: { pass_rate_trend, test_count_trend, failure_distribution }
+
+
+### Risk Analysis Endpoints
+
+GET /api/risk/flaky-tests?projectId=3
+Headers: Authorization: Bearer <token>
+Response: [{ test_name, pass_count, fail_count, ... }, ...]
+
+GET /api/risk/test-scores?projectId=3
+Headers: Authorization: Bearer <token>
+Response: [{ test_name, risk_score, risk_level, is_flaky }, ...]
+
+GET /api/risk/summary?projectId=3
+Headers: Authorization: Bearer <token>
+Response: { total_tests, low_risk_tests, high_risk_tests, ... }
+
+
+### GitHub Endpoints
+
+GET /api/github/commits?projectId=3
+Headers: Authorization: Bearer <token>
+Response: [{ commit_hash, message, author, risk_score }, ...]
+
+GET /api/github/commit-risk?projectId=3
+Headers: Authorization: Bearer <token>
+Response: [{ commit_hash, message, linked_test_failures }, ...]
+
+POST /api/github/sync?projectId=3
+Headers: Authorization: Bearer <token>
+Response: { success: true, commits_synced: 20 }
+
+
+### Slack Endpoints
+
+POST /api/slack/config
+Headers: Authorization: Bearer <token>
+Body: { webhookUrl, orgId }
+Response: { success: true }
+
+POST /api/slack/send-alert
+Headers: Authorization: Bearer <token>
+Body: { type: 'test_failure|risk_alert', data: {...} }
+Response: { success: true, message: 'Alert sent' }
+
+
+---
+
+## 👤 User Guide
+
+### Getting Started
+
+#### Step 1: Create Account
+
+1. Open http://localhost:3000
+2. Click "Sign up"
+3. Enter your email, name, and password
+4. Click "Sign Up"
+5. Automatically redirected to Dashboard
+
+#### Step 2: Create Organization
+
+1. In the navbar, click the "New Organization" dropdown
+2. Enter your organization name (e.g., "QA Team")
+3. Click "Create"
+4. You're automatically the owner
+
+#### Step 3: Upload Test Results
+
+You can upload test results via API:
+
+**Using cURL (JUnit format):**
+
 ```bash
-# Before CORS fix: Frontend shows Backend 🔴 Red
-# After CORS fix: Frontend shows Backend 🟢 Green
+curl -X POST http://localhost:5000/api/test-runs \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "projectId": 3,
+    "runNumber": 1,
+    "totalTests": 20,
+    "passedTests": 15,
+    "failedTests": 3,
+    "skippedTests": 2,
+    "duration": 125000
+  }'
+```
+
+**Using cURL (Test Results):**
+
+```bash
+curl -X POST http://localhost:5000/api/test-results \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '[
+    {
+      "testRunId": 1,
+      "testName": "LoginTest",
+      "status": "PASSED",
+      "duration": 2500,
+      "module": "AuthenticationService",
+      "framework": "Jest"
+    }
+  ]'
+```
+
+### Using the Dashboard
+
+#### View Test Statistics
+
+1. Click "📊 Dashboard" tab
+2. See at the top:
+   - Total Tests (blue)
+   - Passed Tests (green)
+   - Failed Tests (red)
+   - Skipped Tests (orange)
+
+#### View Trends
+
+Scroll down to see three charts:
+
+1. **Pass Rate Trend** - Line chart showing pass rate over time
+2. **Test Count Trend** - Stacked bar chart (passed/failed/skipped)
+3. **Failure Distribution** - Pie chart by framework
+
+#### Module Risk Analysis
+
+Below charts, view module-level risk:
+
+- Click column headers to sort
+- See test counts and pass rates
+- Risk levels color-coded (green/orange/red)
+
+#### Recent Runs
+
+Bottom section shows last 5 test runs:
+
+- Run number
+- Pass rate percentage
+- Number of passed tests
+
+### Risk Analysis Dashboard
+
+#### Step 1: Open Risk Analysis
+
+1. Click "⚠️ Risk Analysis" tab
+
+#### Step 2: View Risk Overview
+
+See 4 cards at top:
+
+- 📋 Total Tests
+- 🟢 LOW Risk Tests
+- 🟡 MEDIUM Risk Tests
+- 🔴 HIGH Risk Tests
+
+#### Step 3: Identify Problem Tests
+
+Two highlight cards show:
+
+- **Highest Risk Test** - Most dangerous test (red)
+- **Most Flaky Test** - Most unstable test (orange)
+
+#### Step 4: Detailed Analysis
+
+**Flaky Tests Table:**
+- Tests that pass AND fail
+- Stability percentage (green/orange/red)
+- Sorted by fail count
+
+**Risky Tests Table:**
+- All tests ranked by risk score
+- Risk level color-coded
+- Flaky indicator (YES/NO)
+- Clickable for details
+
+**Risk Distribution Chart:**
+- Pie chart showing split
+- LOW (green), MEDIUM (orange), HIGH (red)
+
+### GitHub Integration
+
+#### Step 1: Setup GitHub Token
+
+1. Create GitHub personal access token (see Environment Variables section)
+2. Add to `backend/.env` as `GITHUB_TOKEN`
+3. Set `GITHUB_REPO=owner/repo`
+4. Restart backend
+
+#### Step 2: Sync Commits
+
+```bash
+curl -X POST http://localhost:5000/api/github/sync?projectId=3 \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+#### Step 3: View in Dashboard
+
+1. Go to Dashboard
+2. New "GitHub Commits" section shows:
+   - Last 20 commits
+   - Risk scores
+   - Correlation with test failures
+
+### Slack Notifications
+
+#### Step 1: Create Slack Webhook
+
+1. Go to your Slack workspace
+2. Navigate to "Apps"
+3. Search "Incoming Webhooks"
+4. Click "Create New"
+5. Copy the webhook URL
+
+#### Step 2: Configure in QA Pulse
+
+```bash
+curl -X POST http://localhost:5000/api/slack/config \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "webhookUrl": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL",
+    "orgId": 2
+  }'
+```
+
+#### Step 3: Receive Alerts
+
+When tests fail or risk is HIGH:
+
+- Slack message sent automatically
+- Shows test name, failure reason
+- Includes link to dashboard
+- Team gets real-time notification
+
+---
+
+## 🗄️ Database Schema
+
+### Users Table
+```sql
+users (
+  id: integer PRIMARY KEY,
+  email: string UNIQUE,
+  password_hash: string,
+  name: string,
+  created_at: timestamp
+)
+```
+
+### Organizations Table
+```sql
+organizations (
+  id: integer PRIMARY KEY,
+  name: string,
+  owner_id: integer FOREIGN KEY → users.id,
+  created_at: timestamp
+)
+```
+
+### Organization Members Table
+```sql
+org_members (
+  id: integer PRIMARY KEY,
+  org_id: integer FOREIGN KEY → organizations.id,
+  user_id: integer FOREIGN KEY → users.id,
+  role: string (owner|member|viewer),
+  created_at: timestamp
+)
+```
+
+### Projects Table
+```sql
+projects (
+  id: integer PRIMARY KEY,
+  org_id: integer FOREIGN KEY → organizations.id,
+  name: string,
+  description: string,
+  created_at: timestamp
+)
+```
+
+### Test Runs Table
+```sql
+test_runs (
+  id: integer PRIMARY KEY,
+  project_id: integer FOREIGN KEY → projects.id,
+  run_number: integer,
+  total_tests: integer,
+  passed_tests: integer,
+  failed_tests: integer,
+  skipped_tests: integer,
+  duration: integer,
+  created_at: timestamp
+)
+```
+
+### Test Results Table
+```sql
+test_results (
+  id: integer PRIMARY KEY,
+  test_run_id: integer FOREIGN KEY → test_runs.id,
+  test_name: string,
+  status: string (PASSED|FAILED|SKIPPED),
+  duration: integer,
+  module: string,
+  framework: string,
+  created_at: timestamp
+)
+```
+
+### Commits Table
+```sql
+commits (
+  id: integer PRIMARY KEY,
+  project_id: integer FOREIGN KEY → projects.id,
+  commit_hash: string UNIQUE,
+  message: string,
+  author: string,
+  timestamp: timestamp,
+  files_changed: JSON,
+  risk_score: integer (0-100),
+  risk_level: string (LOW|MEDIUM|HIGH),
+  pr_id: string,
+  created_at: timestamp
+)
+```
+
+### Commit Test Run Link Table
+```sql
+commit_test_run_link (
+  id: integer PRIMARY KEY,
+  commit_id: integer FOREIGN KEY → commits.id,
+  test_run_id: integer FOREIGN KEY → test_runs.id,
+  match_confidence: integer (0-100),
+  created_at: timestamp
+)
+```
+
+### Slack Config Table
+```sql
+slack_configs (
+  id: integer PRIMARY KEY,
+  org_id: integer FOREIGN KEY → organizations.id,
+  webhook_url: string,
+  enabled: boolean,
+  created_at: timestamp
+)
 ```
 
 ---
 
-## 🧪 Verification Checklist
+## 🏗️ Architecture
 
-Run this checklist to verify everything is working:
+### System Overview
 
-### Backend Verification
+┌─────────────────────────────────────────────────────┐
+│ User Browser │
+└────────────────────┬────────────────────────────────┘
+│
+┌───────────▼────────────┐
+│ Frontend (React) │
+│ http://localhost:3000 │
+└───────────┬────────────┘
+│
+┌────────────────▼─────────────────┐
+│ Backend (Express.js) │
+│ http://localhost:5000 │
+│ │
+│ ├─ AuthService │
+│ ├─ OrgService │
+│ ├─ DashboardService │
+│ ├─ RiskEngineService │
+│ ├─ FlakyTestService │
+│ ├─ GitHubService │
+│ └─ SlackService │
+└────────────────┬─────────────────┘
+│
+┌────────────────▼──────────────┐
+│ PostgreSQL Database │
+│ localhost:5432 │
+│ │
+│ ├─ users │
+│ ├─ organizations │
+│ ├─ projects │
+│ ├─ test_runs │
+│ ├─ test_results │
+│ ├─ commits │
+│ └─ slack_configs │
+└───────────────────────────────┘
+
+External Integrations:
+
+┌─────────────────────┐
+│ GitHub API │
+│ Sync commits │
+└──────────┬──────────┘
+│
+┌──────▼──────┐
+│ Backend │
+└──────┬──────┘
+│
+┌──────────▼─────────┐
+│ Slack API │
+│ Send alerts │
+└────────────────────┘
+
+
+### Key Services
+
+**AuthService**
+- User registration and login
+- Password hashing and verification
+- JWT token generation and validation
+
+**OrgService**
+- Organization CRUD operations
+- Member management
+- Role-based access control
+
+**DashboardService**
+- Aggregate test statistics
+- Calculate pass rates and trends
+- Module-level risk analysis
+- Chart data generation
+
+**RiskEngineService**
+- Calculate risk scores (0-100)
+- Determine risk levels (LOW/MEDIUM/HIGH)
+- Analyze test failures
+- Score calculation formula:
+
+risk = (failure_rate × 0.5) +
+(recent_failures × 0.3) +
+(flakiness_penalty × 0.2)
+
+
+**FlakyTestService**
+- Detect tests that pass and fail
+- Calculate stability percentage
+- Identify most unstable tests
+
+**GitHubService**
+- Fetch commits from GitHub API
+- Parse commit metadata
+- Identify changed files
+- Calculate commit risk based on files touched
+
+**SlackService**
+- Configure webhook URLs
+- Format and send notifications
+- Handle test failure alerts
+- Risk level alerts
+
+---
+
+## 🚢 Deployment
+
+### Local Development with Docker
+
+**Start all services:**
+
 ```bash
-# Terminal 2 (or any available)
-curl http://localhost:5000/health
-
-# Expected: {"status":"ok","message":"Server is healthy 🚀"}
-```
-
-### Database Verification
-```bash
-docker exec qa_pulse_db psql -U dev -d qa_pulse -c "SELECT COUNT(*) FROM users;"
-
-# Expected: count = 0 (empty table, which is correct)
-```
-
-### Docker Verification
-```bash
-docker ps
-
-# Expected: 1 container running (qa_pulse_db PostgreSQL)
-```
-
-### Frontend Verification
-```bash
-# Open browser at http://localhost:3000
-# Expected visible on page:
-# - "QA Pulse" heading (cyan color)
-# - "Quality Intelligence Platform" tagline
-# - Backend Status: 🟢 Green
-# - Database Status: 🟢 Green (Connected)
-```
-
-### All Services Together
-```bash
-# Terminal 1: Docker
-cd qa-pulse
+# Terminal 1: Start Docker containers
 docker-compose up
 
-# Terminal 2: Backend
-cd qa-pulse/backend
-npm run dev
+# Terminal 2: Start backend
+cd backend && npm run dev
 
-# Terminal 3: Frontend
-cd qa-pulse/frontend
-npm run dev
+# Terminal 3: Start frontend
+cd frontend && npm run dev
 
-# Expected: 3 terminals, all running without errors
-# Browser should show both statuses 🟢 Green
+# Terminal 4: Optional - run tests
+npm test
+```
+
+**Stop services:**
+
+```bash
+docker-compose down
+```
+
+### Production Deployment
+
+#### Environment Setup
+
+1. **Create production .env files:**
+
+```bash
+# backend/.env.production
+NODE_ENV=production
+PORT=5000
+DATABASE_HOST=your-rds-endpoint.com
+DATABASE_USER=prod_user
+DATABASE_PASSWORD=strong_password_here
+JWT_SECRET=generate_with_openssl_rand_hex
+GITHUB_TOKEN=ghp_your_production_token
+GITHUB_REPO=owner/repo
+CORS_ORIGIN=https://yourdomain.com
+```
+
+2. **Build Docker images:**
+
+```bash
+docker build -t qa-pulse-backend:1.0.0 ./backend
+docker build -t qa-pulse-frontend:1.0.0 ./frontend
+```
+
+3. **Push to registry:**
+
+```bash
+docker tag qa-pulse-backend:1.0.0 your-registry/qa-pulse-backend:1.0.0
+docker push your-registry/qa-pulse-backend:1.0.0
+```
+
+#### Deployment Platforms
+
+**AWS EC2:**
+- Launch EC2 instance
+- Install Docker and Docker Compose
+- Deploy using docker-compose.yml
+- Use RDS for PostgreSQL
+- Set up security groups
+
+**Heroku:**
+```bash
+heroku create qa-pulse
+git push heroku main
+heroku addons:create heroku-postgresql
+```
+
+**DigitalOcean:**
+- Create App Platform project
+- Connect GitHub repo
+- Deploy from docker-compose.yml
+- Managed PostgreSQL database
+
+**Kubernetes:**
+```bash
+kubectl apply -f k8s/backend-deployment.yaml
+kubectl apply -f k8s/frontend-deployment.yaml
+kubectl apply -f k8s/postgres-deployment.yaml
 ```
 
 ---
 
-## 📊 Project Architecture
+## 🔧 Troubleshooting
 
-```
-                    QA PULSE ARCHITECTURE
-                            │
-            ┌───────────────┼───────────────┐
-            │               │               │
-        FRONTEND         BACKEND        DATABASE
-      React + Vite    Node + Express   PostgreSQL
-      localhost:3000   localhost:5000  localhost:5432
-            │               │               │
-            │        (CORS enabled)        │
-            └───────────────┼───────────────┘
-                            │
-                   All services connected
-```
+### PostgreSQL Connection Issues
 
-**Data Flow:**
-1. User opens Frontend at `localhost:3000`
-2. Frontend calls `GET /health` on Backend
-3. Backend responds with status
-4. Frontend displays Backend + Database status as 🟢 Green
+**Problem:** "Cannot connect to database"
 
----
+**Solutions:**
 
-## 🛠️ Troubleshooting
-
-### Issue: Backend shows 🔴 Red in Frontend
-
-**Solution 1: Check backend is running**
 ```bash
-# Terminal 2
-ps aux | grep node          # Should see npm run dev process
-curl http://localhost:5000/health   # Should return JSON
+# Check if docker-compose is running
+docker ps
+
+# Check PostgreSQL logs
+docker logs qa_pulse_db
+
+# Verify credentials in .env
+cat backend/.env
+
+# Restart containers
+docker-compose restart
 ```
 
-**Solution 2: Check CORS is configured**
+### Frontend Can't Reach Backend
+
+**Problem:** API calls fail with "Failed to fetch"
+
+**Solutions:**
+
 ```bash
-# Open browser F12 console
-# Look for: "Access-Control-Allow-Origin" errors
-# If found: Run `npm install cors` in backend + add middleware
+# Verify backend is running
+curl http://localhost:5000/health
+
+# Check CORS in backend/src/server.ts
+# Should have: app.use(cors())
+
+# Verify VITE_API_URL in frontend/.env
+cat frontend/.env
+
+# Clear browser cache
+# Press Ctrl+Shift+Delete in Chrome
 ```
 
-**Solution 3: Restart backend**
+### GitHub Integration Not Working
+
+**Problem:** "GitHub API error: Not Found"
+
+**Solutions:**
+
 ```bash
-# Terminal 2
-Ctrl+C                      # Stop backend
-npm run dev                 # Start again
+# Verify token format
+# Should start with: ghp_ or github_pat_
+
+# Test token directly
+curl -H "Authorization: token YOUR_TOKEN" \
+  https://api.github.com/user
+
+# Verify repo name format
+# Should be: owner/repo (e.g., RoshiniGunasekaran/QA-Pulse)
+
+# Check repo is accessible
+# Token must have 'repo' permission
 ```
 
----
+### TypeScript Errors
 
-### Issue: Port 5000 already in use
+**Problem:** "Cannot find module" errors
 
-**Error:** `bind: Only one usage of each socket address`
+**Solutions:**
 
-**Solution:**
 ```bash
-# Find process using port 5000
-lsof -i :5000               # On Mac/Linux
-netstat -ano | findstr :5000 # On Windows
-
-# Kill the process (replace PID)
-kill -9 <PID>              # Mac/Linux
-taskkill /PID <PID> /F     # Windows
-```
-
----
-
-### Issue: PostgreSQL won't start in Docker
-
-**Error:** `bind: address already in use`
-
-**Solution:**
-```bash
-docker-compose down         # Stop all containers
-docker-compose up           # Start fresh
-```
-
----
-
-### Issue: npm packages won't install
-
-**Error:** `ERR! ERR!`
-
-**Solution:**
-```bash
-# Clear npm cache
-npm cache clean --force
-
-# Remove node_modules and package-lock.json
+# Clear node_modules and reinstall
 rm -rf node_modules package-lock.json
-
-# Reinstall
 npm install
+
+# Check tsconfig.json
+cat tsconfig.json
+
+# Rebuild TypeScript
+npm run build
 ```
 
----
+### Performance Issues
 
-## 📝 Terminal Setup Reference
+**Problem:** Dashboard loads slowly
 
-**This is how your 3 terminals should look:**
+**Solutions:**
 
-### Terminal 1: Docker
 ```bash
-$ cd qa-pulse
-$ docker-compose up
-Attaching to qa_pulse_db
-qa_pulse_db  | PostgreSQL... ready to accept connections ✅
-```
+# Check database indexes
+SELECT * FROM pg_indexes;
 
-### Terminal 2: Backend
-```bash
-$ cd qa-pulse/backend
-$ npm run dev
-[nodemon] starting ts-node src/server.ts
-🚀 Server running on http://localhost:5000 ✅
-```
+# Verify API response time
+curl -w "@curl-format.txt" \
+  http://localhost:5000/api/dashboard/summary?projectId=3
 
-### Terminal 3: Frontend
-```bash
-$ cd qa-pulse/frontend
-$ npm run dev
-VITE v5.x.x ready in xxx ms
-➜  Local: http://localhost:3000/
-(browser opens automatically) ✅
+# Optimize queries (check backend logs)
+# Look for slow queries
+
+# Consider pagination for large datasets
 ```
 
 ---
 
-## 📚 What Each Technology Does
+## 🤝 Contributing
 
-### Node.js
-- **What:** JavaScript runtime for backend
-- **Why:** Execute JavaScript outside browser
-- **Used for:** Running Express server
-
-### Express.js
-- **What:** Web framework for Node.js
-- **Why:** Create REST APIs easily
-- **Used for:** Building backend routes and endpoints
-
-### TypeScript
-- **What:** Typed superset of JavaScript
-- **Why:** Catch errors before runtime
-- **Used for:** Type-safe backend and frontend code
-
-### React
-- **What:** UI library for building interfaces
-- **Why:** Component-based, reusable UI
-- **Used for:** Building QA Pulse dashboard
-
-### Vite
-- **What:** Fast build tool and dev server
-- **Why:** Instant hot reload during development
-- **Used for:** Frontend development and bundling
-
-### PostgreSQL
-- **What:** Relational database
-- **Why:** Store structured data (test results, users, etc.)
-- **Used for:** QA Pulse data persistence
-
-### Docker
-- **What:** Containerization platform
-- **Why:** Run PostgreSQL without installation
-- **Used for:** Isolated database environment
-
-### CORS
-- **What:** Cross-Origin Resource Sharing
-- **Why:** Allow frontend to call backend safely
-- **Used for:** Frontend-Backend communication
-
----
-
-## ✅ Day 1 Completion Checklist
-
-- [x] Node.js + npm installed
-- [x] Docker installed
-- [x] Git repository initialized
-- [x] Folder structure created
-- [x] Backend setup complete
-- [x] PostgreSQL schema created
-- [x] Docker-compose configured (PostgreSQL only)
-- [x] Frontend setup complete
-- [x] CORS middleware added
-- [x] All 3 services running
-- [x] Status indicators showing 🟢 Green
-- [x] Git commit completed
-
-**Status: ✅ 100% COMPLETE**
-
----
-
-## 🚀 What's Next — Day 2
-
-**Day 2 Goal:** Make QA Pulse understand test results
-
-**What You'll Build:**
-- `POST /api/test-runs` endpoint (accept test batches)
-- `POST /api/test-results` endpoint (store individual test results)
-- Sample JUnit XML file
-- Sample Postman JSON file
-- Integration test
-
-**Expected Time:** 6-8 hours
-
----
-
-## 📖 Important Notes
-
-### Terminal Management
-- Keep all 3 terminals running during development
-- If one crashes, restart it individually
-- Each terminal is independent
+We welcome contributions! Here's how:
 
 ### Development Workflow
-- Backend: Edit code → Auto-reloads with nodemon
-- Frontend: Edit code → Auto-refreshes in browser
-- Database: Changes persist even if container restarts
 
-### Git Commits
-- Commit after each feature is complete
-- Use descriptive commit messages
-- Example: `git commit -m "Day 1: Backend + Frontend + Database"`
-
-### Troubleshooting Strategy
-1. Check if all 3 services are running
-2. Test each service independently (curl backend, etc.)
-3. Check browser console (F12) for errors
-4. Check terminal output for error messages
-5. Restart problematic service
-6. If persistent: Delete containers and start fresh
-
----
-
-## 📞 Quick Reference
-
-| Task | Command | Folder |
-|------|---------|--------|
-| Start Docker | `docker-compose up` | qa-pulse |
-| Start Backend | `npm run dev` | backend |
-| Start Frontend | `npm run dev` | frontend |
-| Test Backend | `curl http://localhost:5000/health` | any |
-| View Logs | Check terminal output | - |
-| Stop Service | `Ctrl+C` | - |
-| Stop All Docker | `docker-compose down` | qa-pulse |
-| Check Containers | `docker ps` | any |
-| Git Status | `git status` | qa-pulse |
-| Git Commit | `git commit -m "message"` | qa-pulse |
-
----
-
-## 🎉 Summary
-
-**You've successfully built:**
-
-```
-✅ Professional full-stack architecture
-✅ Scalable backend with Express
-✅ Modern React frontend with Vite
-✅ PostgreSQL database with proper schema
-✅ Docker setup for reproducibility
-✅ CORS configuration for service communication
-✅ Health check endpoints for monitoring
-✅ Git version control
-
-Total: 3 services running, both statuses green, code committed.
-Ready for Day 2!
-```
-
----
-
-## 📚 Useful Links
-
-- [Node.js Docs](https://nodejs.org/docs/)
-- [Express Guide](https://expressjs.com/)
-- [React Docs](https://react.dev/)
-- [Vite Docs](https://vitejs.dev/)
-- [PostgreSQL Docs](https://www.postgresql.org/docs/)
-- [Docker Docs](https://docs.docker.com/)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-
----
-
-**Created:** September 15, 2026  
-**Day:** 1 of 7  
-**Status:** ✅ Complete  
-**Next:** Day 2 - Test Result Ingestion
-
-
-# 📊 DAY 2 Complete Summary
-
-Here's everything we built and accomplished in **Day 2: Test Result Ingestion**
-
----
-
-## 🎯 Day 2 Goal
-
-**Build APIs to accept test results from different testing tools (JUnit + Postman) and store them in PostgreSQL**
-
----
-
-## 📁 Files Created (8 Files)
-
-### **1. Types & Interfaces**
-**File:** `backend/src/types/testResults.ts`
-
-Created TypeScript interfaces:
-- ✅ `TestStatus` enum (PASS, FAIL, SKIPPED)
-- ✅ `TestResult` interface (individual test)
-- ✅ `TestRun` interface (test batch summary)
-- ✅ `ParsedJUnitResult` (JUnit parser output)
-- ✅ `ParsedPostmanResult` (Postman parser output)
-- ✅ `APIResponse<T>` (generic response wrapper)
-- ✅ `ValidationError` (error details)
-
----
-
-### **2. JUnit XML Parser**
-**File:** `backend/src/utils/junitParser.ts`
-
-Created parser that:
-- ✅ Parses JUnit XML format
-- ✅ Handles multiple test suites
-- ✅ Extracts test name, status, duration, module
-- ✅ Handles edge cases:
-  - Empty/null input → returns null
-  - Malformed XML → returns null
-  - Missing fields → defaults (test_name = "Unknown Test")
-  - Invalid status → defaults to FAIL
-  - Negative duration → sets to 0
-- ✅ Deduplicates test results
-- ✅ Sorts alphabetically by test_name
-- ✅ Supports nested testsuites
-
----
-
-### **3. Postman JSON Parser**
-**File:** `backend/src/utils/postmanParser.ts`
-
-Created parser that:
-- ✅ Parses Postman Newman JSON format
-- ✅ Supports both Collection and Report formats
-- ✅ Extracts test name, status, duration, module
-- ✅ Converts milliseconds to seconds
-- ✅ Determines status from assertions
-- ✅ Handles edge cases:
-  - Empty/null input → returns null
-  - Invalid JSON → returns null
-  - Missing fields → defaults
-  - No assertions → defaults to FAIL
-- ✅ Deduplicates test results
-- ✅ Sorts alphabetically by test_name
-- ✅ Supports nested folders/requests
-
----
-
-### **4. Test Runs API Route**
-**File:** `backend/src/routes/testRuns.ts`
-
-Created `POST /api/test-runs` endpoint:
-
-**Accepts:**
-```json
-{
-  "project_id": number (required, > 0),
-  "run_number": number (required, > 0),
-  "total_tests": number (>= 0),
-  "passed_tests": number (>= 0),
-  "failed_tests": number (>= 0),
-  "skipped_tests": number (>= 0),
-  "duration": number (>= 0, in seconds)
-}
-```
-
-**Features:**
-- ✅ Validates all fields present
-- ✅ Validates all fields are numbers
-- ✅ Validates test count sum matches total
-- ✅ Converts float duration to integer
-- ✅ Inserts into `test_runs` table
-- ✅ Returns created record with ID
-- ✅ Handles foreign key errors (project_id must exist)
-- ✅ Handles duplicate constraints
-- ✅ Returns 201 Created on success
-- ✅ Returns 400 Bad Request on validation error
-- ✅ Returns 500 on database error
-
----
-
-### **5. Test Results API Route**
-**File:** `backend/src/routes/testResults.ts`
-
-Created `POST /api/test-results` endpoint:
-
-**Accepts:**
-```json
-{
-  "test_run_id": number (required, must exist),
-  "results": [
-    {
-      "test_name": string (required, not empty),
-      "status": "PASS" | "FAIL" | "SKIPPED" (required),
-      "duration": number (>= 0, in seconds),
-      "module": string (required, not empty),
-      "framework": string (required)
-    }
-  ]
-}
-```
-
-**Features:**
-- ✅ Validates test_run_id exists in database
-- ✅ Validates results array not empty
-- ✅ Validates each result field
-- ✅ Validates status is PASS/FAIL/SKIPPED
-- ✅ Validates duration >= 0
-- ✅ Converts float duration to integer
-- ✅ Uses database transaction for batch insert
-- ✅ Rolls back on any error
-- ✅ Returns 201 Created on success
-- ✅ Returns all inserted records with IDs
-- ✅ Returns 400 Bad Request on validation error
-- ✅ Returns 500 on database error
-- ✅ Supports 1000+ results without timeout
-
----
-
-### **6. Updated Server Configuration**
-**File:** `backend/src/server.ts` (UPDATED)
-
-Updated with:
-- ✅ Imports for testRunsRouter
-- ✅ Imports for testResultsRouter
-- ✅ Route registration: `/api/test-runs`
-- ✅ Route registration: `/api/test-results`
-- ✅ 404 handler for unknown routes
-- ✅ Global error handler for unhandled errors
-
----
-
-### **7. Sample JUnit XML File**
-**File:** `test-data/sample-junit-results.xml`
-
-Created realistic JUnit XML with:
-- ✅ 20 total tests
-- ✅ 15 PASS
-- ✅ 3 FAIL
-- ✅ 2 SKIPPED
-- ✅ Multiple test suites:
-  - AuthenticationTests (8 tests)
-  - PaymentServiceTests (7 tests)
-  - CartServiceTests (5 tests)
-- ✅ Different modules
-- ✅ Realistic durations
-- ✅ Valid XML format
-
----
-
-### **8. Sample Postman JSON File**
-**File:** `test-data/sample-postman-results.json`
-
-Created realistic Postman report with:
-- ✅ 20 total tests
-- ✅ 15 PASS
-- ✅ 3 FAIL
-- ✅ 2 SKIPPED
-- ✅ Multiple request folders:
-  - Authentication (8 tests)
-  - Payment API (7 tests)
-  - Cart Service (5 tests)
-- ✅ Realistic response times
-- ✅ Valid JSON format
-
----
-
-## 🔧 Dependencies Installed
+1. **Fork the repository**
 
 ```bash
-npm install xml2js
-npm install --save-dev @types/xml2js
+git clone https://github.com/YOUR_USERNAME/QA-Pulse.git
+cd qa-pulse
 ```
 
-- ✅ xml2js: Parse XML files
-- ✅ @types/xml2js: TypeScript type definitions
+2. **Create feature branch**
 
----
-
-## 🗄️ Database Setup
-
-Created/used tables:
-- ✅ `users` table (for org owners)
-- ✅ `organizations` table (for test org)
-- ✅ `projects` table (for test project)
-- ✅ `test_runs` table (for test batches)
-- ✅ `test_results` table (for individual tests)
-
-Sample data created:
-- ✅ 1 user (test@example.com)
-- ✅ 1 organization (Test Organization)
-- ✅ 1 project (Sample Project)
-- ✅ 2 test runs (run 1 + run 2)
-- ✅ 8 test results total (3 + 5)
-
----
-
-## 🧪 Testing & Verification
-
-**All APIs tested and working:**
-
-✅ **POST /api/test-runs**
-- Created test run with ID 3
-- Validation working
-- Database insert working
-- Returns correct response
-
-✅ **POST /api/test-results**
-- Inserted 3 results into test run 3
-- Inserted 5 results into test run 4
-- Batch insert with transaction working
-- All results saved correctly
-
-✅ **Error Handling**
-- Invalid data rejected with 400 errors
-- Missing fields caught
-- Type validation working
-- Database constraints enforced
-
-✅ **Database**
-- test_runs table: 2 rows ✅
-- test_results table: 8 rows ✅
-- All data persists ✅
-
----
-
-## 📊 API Architecture Built
-
+```bash
+git checkout -b feature/amazing-feature
 ```
-Test Source (JUnit/Postman)
-        ↓
-    Parser
-    (Extract: test_name, status, duration, module)
-        ↓
-    API Endpoint
-    (POST /api/test-runs OR /api/test-results)
-        ↓
-    Validation
-    (Check all fields, types, constraints)
-        ↓
-    Database
-    (INSERT into test_runs OR test_results)
-        ↓
-    Response
-    (201 Created + inserted data)
+
+3. **Make your changes**
+
+- Follow existing code style
+- Add comments for complex logic
+- Test thoroughly
+
+4. **Commit changes**
+
+```bash
+git add .
+git commit -m "Add amazing feature"
+```
+
+5. **Push to fork**
+
+```bash
+git push origin feature/amazing-feature
+```
+
+6. **Open Pull Request**
+
+- Describe what changed
+- Explain why it's needed
+- Link related issues
+
+### Code Standards
+
+- Use TypeScript with strict mode
+- Follow ESLint rules
+- Write descriptive commit messages
+- Add comments for non-obvious code
+- Test before pushing
+
+### Testing
+
+```bash
+# Run tests
+npm test
+
+# Test coverage
+npm run test:coverage
+
+# E2E tests
+npm run test:e2e
 ```
 
 ---
 
-## 🎯 Edge Cases Handled
+## 📄 License
 
-✅ **JUnit Parser:**
-- Empty XML → null
-- Malformed XML → null
-- Missing test_name → "Unknown Test"
-- Unknown status → FAIL
-- Negative duration → 0
-- Multiple test suites → all flattened
-- Nested testcases → handled
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-✅ **Postman Parser:**
-- Empty JSON → null
-- Invalid JSON → null
-- Missing assertion → FAIL
-- No response time → 0
-- Milliseconds → converted to seconds
-- Multiple folders → all flattened
-- Different JSON structures → handled
-
-✅ **API Validation:**
-- Missing required fields → error
-- Wrong data types → error
-- Invalid values → error
-- Negative numbers → error
-- Test count mismatch → error
-- Non-existent project_id → error
-- Non-existent test_run_id → error
-
-✅ **Database:**
-- Foreign key constraints checked
-- Transaction rollback on error
-- Duplicate handling
-- Null value prevention
+**MIT License Summary:**
+- ✅ Commercial use
+- ✅ Modification
+- ✅ Distribution
+- ✅ Private use
+- ❌ Liability
+- ❌ Warranty
 
 ---
 
-## 📋 What We Can Do Now
+## 📞 Contact & Support
 
-After Day 2, we can:
+**Questions or Issues?**
 
-✅ **Send test results from JUnit** → API stores them
-✅ **Send test results from Postman** → API stores them
-✅ **Batch insert multiple results** → All saved atomically
-✅ **Validate incoming data** → Reject invalid requests
-✅ **Query test data from database** → For reporting/dashboards
-✅ **Track test execution history** → Multiple test runs
-✅ **Analyze test results** → Group by module/framework
+- **Email:** support@qapulse.com
+- **GitHub Issues:** [Report a bug](https://github.com/RoshiniGunasekaran/QA-Pulse/issues)
+- **GitHub Discussions:** [Ask a question](https://github.com/RoshiniGunasekaran/QA-Pulse/discussions)
 
----
+**Follow the Project**
 
-## 🚀 Ready for Day 3
-
-With Day 2 complete, we now have:
-
-✅ Working APIs to ingest test data
-✅ Parsers to extract test information
-✅ Database storing all test results
-✅ Sample data for testing/demo
-✅ Validation and error handling
-
-**Day 3 will build:**
-- Dashboard showing test results
-- Statistics (total, passed, failed, skipped)
-- Charts and visualizations
-- Module-level risk analysis
-- Release health score
+- ⭐ Star on GitHub
+- 🐦 Follow on Twitter
+- 💼 Connect on LinkedIn
 
 ---
 
-## 📊 Progress Summary
+## 📚 Additional Resources
 
-```
-DAY 1: Full Stack Setup           ✅ 100%
-DAY 2: Test Result Ingestion      ✅ 100%
-  └─ 8 files created
-  └─ 2 APIs working
-  └─ 2 parsers implemented
-  └─ Database verified
-  └─ All edge cases handled
-
-DAY 3: Dashboard & Visualization  ⏳ 0%
-DAY 4: Flaky Detection + Risk     ⏳ 0%
-DAY 5: GitHub Integration         ⏳ 0%
-DAY 6: SaaS Features              ⏳ 0%
-DAY 7: QA & Documentation         ⏳ 0%
-```
+- [React Documentation](https://react.dev/)
+- [Express.js Guide](https://expressjs.com/)
+- [PostgreSQL Docs](https://www.postgresql.org/docs/)
+- [Docker Documentation](https://docs.docker.com/)
+- [GitHub API Reference](https://docs.github.com/en/rest)
+- [Slack API Documentation](https://api.slack.com/)
 
 ---
 
-## 🎉 What You Accomplished
+## 🎯 Roadmap
 
-You built a **production-ready test ingestion system** that:
+### Q1 2026
+- [ ] Email notifications
+- [ ] Advanced analytics dashboard
+- [ ] Custom risk formulas
+- [ ] Webhook support for incoming commits
 
-- ✅ Accepts test data from multiple sources
-- ✅ Validates all incoming data
-- ✅ Handles all error cases gracefully
-- ✅ Stores data reliably in PostgreSQL
-- ✅ Provides clear API responses
-- ✅ Supports batch operations
-- ✅ Uses TypeScript for type safety
-- ✅ Includes proper error handling
+### Q2 2026
+- [ ] CLI tool for local testing
+- [ ] Mobile app (React Native)
+- [ ] SSO/SAML integration
+- [ ] API rate limiting
 
-**This is a solid foundation for the rest of QA Pulse!** 🚀
+### Q3 2026
+- [ ] AI-powered risk prediction
+- [ ] Historical trend analysis
+- [ ] Custom reports and exports
+- [ ] Team collaboration features
+
+### Q4 2026
+- [ ] Enterprise features
+- [ ] Premium support
+- [ ] White-label option
+- [ ] Advanced security features
 
 ---
 
-**Ready for Day 3?** 🎯
+## 🙏 Acknowledgments
 
+Built with ❤️ by [Roshini Gunasekaran](https://github.com/RoshiniGunasekaran)
+
+**Technologies & Tools:**
+- React & Vite team
+- Express.js community
+- PostgreSQL developers
+- Docker & containerization
+- Open source community
+
+---
+
+**Made with 💚 for QA teams everywhere**
+
+Last Updated: September 2026
